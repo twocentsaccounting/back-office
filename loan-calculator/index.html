@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loan Calculator — Two Cents Accounting</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:      #D4603A;
+      --brand-dark: #B84D2A;
+      --brand-bg:   #fdf2ee;
+      --dark:       #1a1a1a;
+      --text:       #2c2c2c;
+      --muted:      #7a7067;
+      --surface:    #ffffff;
+      --bg:         #faf8f6;
+      --border:     #e8e2db;
+      --green:      #1e8a5a;
+      --red:        #c0392b;
+      --amber:      #b87820;
+      --radius:     14px;
+      --shadow:     0 2px 18px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    .site-header { background: var(--dark); padding: 14px 24px; }
+    .header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .logo { display: flex; align-items: center; text-decoration: none; }
+    .logo-img { height: 50px; border-radius: 8px; display: block; }
+    .header-tagline { color: rgba(255,255,255,.4); font-size: .8rem; font-weight: 500; }
+
+    /* ── CTA bar ── */
+    .cta-bar { background: var(--brand); }
+    .cta-bar-inner { max-width: 960px; margin: 0 auto; padding: 11px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .cta-bar-left { display: flex; flex-direction: column; gap: 1px; }
+    .cta-eyebrow { font-size: .59rem; font-weight: 800; text-transform: uppercase; letter-spacing: .15em; color: rgba(255,255,255,.6); }
+    .cta-text { font-size: clamp(.85rem, 2vw, .97rem); font-weight: 700; color: #fff; }
+    .btn-cta { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 16px; background: var(--dark); color: #fff; border-radius: 7px; font-weight: 700; font-size: .82rem; text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
+    .btn-cta:hover { background: #333; }
+
+    /* ── Page ── */
+    .page-body { max-width: 960px; margin: 0 auto; padding: 24px 16px 0; }
+    .page-intro { text-align: center; margin-bottom: 18px; }
+    .page-intro h1 { font-size: clamp(1.3rem, 3vw, 1.75rem); font-weight: 800; letter-spacing: -.03em; color: var(--dark); }
+    .page-intro p  { margin-top: 4px; color: var(--muted); font-size: .88rem; }
+
+    /* ── Cards ── */
+    .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 22px; margin-bottom: 14px; border: 1px solid var(--border); }
+    .card-title { font-size: .67rem; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: .13em; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--brand-bg); }
+
+    /* ── Mode tabs ── */
+    .mode-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px; }
+    @media (max-width: 400px) { .mode-tabs { grid-template-columns: 1fr; } }
+    .mtab {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+      padding: 10px 12px; border-radius: 9px; border: 1.5px solid var(--border);
+      background: var(--bg); cursor: pointer; text-align: left; height: auto;
+      transition: border-color .15s, background .15s;
+    }
+    .mtab:hover:not(.active) { border-color: var(--brand); background: var(--brand-bg); }
+    .mtab.active { background: var(--brand); border-color: var(--brand); }
+    .mtab strong { font-size: .82rem; font-weight: 700; color: var(--text); display: block; }
+    .mtab span   { font-size: .68rem; color: var(--muted); display: block; }
+    .mtab.active strong, .mtab.active span { color: #fff; }
+
+    /* ── Input grid ── */
+    .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 13px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: .69rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-prefix, .input-suffix { position: absolute; font-size: .86rem; color: var(--muted); pointer-events: none; }
+    .input-prefix { left: 10px; }
+    .input-suffix { right: 10px; }
+    input[type="number"], input[type="date"] {
+      width: 100%; height: 41px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: .93rem; color: var(--dark); background: var(--bg); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="number"] { padding: 0 30px 0 25px; }
+    input[type="date"]   { padding: 0 11px; }
+    input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(212,96,58,.12); background: #fff; }
+    input.invalid { border-color: var(--red) !important; }
+    .error-msg { font-size: .73rem; color: var(--red); display: none; margin-top: 2px; }
+
+    /* ── Buttons ── */
+    .btn-row { margin-top: 15px; display: flex; gap: 9px; flex-wrap: wrap; }
+    button { height: 41px; padding: 0 22px; border-radius: 8px; border: none; cursor: pointer; font-size: .88rem; font-weight: 700; transition: background .15s, transform .1s; }
+    button:active { transform: scale(.98); }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-dark); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); font-weight: 600; }
+    .btn-ghost:hover { background: var(--bg); }
+
+    /* ── Reverse-mode result banner ── */
+    .rev-result {
+      display: none; border-radius: 11px; padding: 16px 18px; margin-bottom: 4px;
+      border: 1px solid;
+    }
+    .rev-result.visible { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
+    .rev-result.found-term { background: linear-gradient(135deg,#edf8f2,#e0f4ea); border-color: #a8dfc0; }
+    .rr-label { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 3px; }
+    .rr-value { font-size: 1.55rem; font-weight: 800; letter-spacing: -.03em; color: var(--dark); }
+    .rr-sub   { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Summary stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; }
+    .stat { background: var(--bg); border-radius: 10px; padding: 13px 12px; border: 1px solid var(--border); }
+    .stat-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+    .stat-value { font-size: 1.18rem; font-weight: 800; letter-spacing: -.02em; color: var(--dark); }
+    .stat-value.brand { color: var(--brand); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.red   { color: var(--red); }
+    .stat-value.green { color: var(--green); }
+    .stat-sm { font-size: .95rem; }
+
+    .breakdown { margin-top: 13px; }
+    .breakdown-bar { height: 8px; border-radius: 99px; overflow: hidden; display: flex; background: var(--bg); border: 1px solid var(--border); }
+    .bar-principal { background: var(--green); transition: width .4s; }
+    .bar-interest  { background: var(--amber); transition: width .4s; }
+    .breakdown-legend { display: flex; gap: 14px; margin-top: 7px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: .75rem; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-p { background: var(--green); }
+    .dot-i { background: var(--amber); }
+
+    /* ── Chart ── */
+    .chart-legend-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 12px; align-items: center; }
+    .cl-item { display: flex; align-items: center; gap: 7px; font-size: .77rem; color: var(--text); font-weight: 500; }
+    .chart-wrap { position: relative; width: 100%; height: 300px; }
+    @media (max-width: 500px) { .chart-wrap { height: 210px; } }
+    #chart-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+    .chart-hint { font-size: .72rem; color: var(--muted); text-align: center; margin-top: 9px; }
+
+    /* ── Scenarios ── */
+    .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 580px) { .scenario-grid { grid-template-columns: 1fr; } }
+    .scenario-block { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px 13px; }
+    .scenario-block-title { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+    .sbt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .slider-header label { font-size: .69rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    .slider-live { font-size: 1.05rem; font-weight: 800; color: var(--brand); }
+
+    input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 99px; background: var(--border); outline: none; cursor: pointer; margin-bottom: 3px; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 19px; height: 19px; border-radius: 50%; background: var(--brand); cursor: pointer; border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,.22); }
+    input[type="range"]::-moz-range-thumb { width: 19px; height: 19px; border-radius: 50%; background: var(--brand); cursor: pointer; border: 3px solid #fff; }
+    .slider-ticks { display: flex; justify-content: space-between; font-size: .64rem; color: var(--muted); margin-bottom: 11px; }
+
+    .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .impact-item .ilabel { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 1px; }
+    .impact-item .ival  { font-size: .94rem; font-weight: 800; }
+    .ival.saving  { color: var(--green); }
+    .ival.costing { color: var(--red); }
+    .ival.neutral { color: var(--dark); }
+
+    .vs-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px; font-size: .7rem; font-weight: 700; color: var(--muted); margin-top: 10px; }
+    .vb-diff.saving  { color: var(--green); font-weight: 800; }
+    .vb-diff.costing { color: var(--red);   font-weight: 800; }
+
+    /* ── Refinance ── */
+    .refi-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(162px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .refi-compare { display: none; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 500px) { .refi-compare { grid-template-columns: 1fr; } }
+    .refi-col { background: var(--bg); border-radius: 10px; border: 1px solid var(--border); padding: 13px 12px; }
+    .refi-col-title { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 9px; display: flex; align-items: center; gap: 6px; }
+    .rc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .rc-dot-cur  { background: var(--amber); }
+    .rc-dot-refi { background: var(--brand); }
+    .refi-row { margin-bottom: 8px; }
+    .refi-row-label { font-size: .67rem; color: var(--muted); font-weight: 600; margin-bottom: 1px; }
+    .refi-row-val   { font-size: .96rem; font-weight: 800; color: var(--dark); }
+    .savings-banner { margin-top: 12px; border-radius: 10px; padding: 13px 15px; text-align: center; display: none; border: 1px solid; }
+    .savings-banner.positive { background: linear-gradient(135deg,#edf8f2,#e0f4ea); border-color: #a8dfc0; }
+    .savings-banner.negative { background: linear-gradient(135deg,#fef9f0,#fdeede); border-color: #f0cf9a; }
+    .sb-label { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 3px; }
+    .sb-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; }
+    .sb-value.positive { color: var(--green); }
+    .sb-value.negative { color: var(--amber); }
+    .sb-sub { font-size: .77rem; color: var(--muted); margin-top: 3px; }
+
+    /* ── Table ── */
+    .table-controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 10px; }
+    .table-controls span { font-size: .79rem; color: var(--muted); }
+    .view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .view-toggle button { height: 30px; padding: 0 12px; border-radius: 0; border: none; background: transparent; font-size: .73rem; font-weight: 700; color: var(--muted); }
+    .view-toggle button.active { background: var(--brand); color: #fff; }
+    .table-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead th { background: var(--bg); padding: 9px 11px; text-align: right; font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); white-space: nowrap; border-bottom: 1px solid var(--border); }
+    thead th:first-child { text-align: left; }
+    tbody tr { border-bottom: 1px solid #f0ebe4; transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fdf9f7; }
+    tbody tr.year-row { background: #f5efea; font-weight: 700; }
+    td { padding: 8px 11px; text-align: right; white-space: nowrap; }
+    td:first-child { text-align: left; color: var(--muted); font-size: .76rem; }
+    td.bal-cell { color: var(--brand); font-weight: 700; }
+    td.int-cell { color: var(--amber); }
+    td.pri-cell { color: var(--green); }
+
+    .results-section { display: none; }
+    .results-section.visible { display: block; }
+    .site-footer { text-align: center; padding: 14px 16px 30px; color: var(--muted); font-size: .73rem; }
+    @media (max-width: 480px) { .card { padding: 15px 12px; } .stat-value { font-size: 1rem; } }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="logo" aria-label="Two Cents Accounting">
+      <img src="IMG_4951.PNG" alt="Two Cents Accounting" class="logo-img" />
+    </a>
+    <span class="header-tagline">Loan Calculator</span>
+  </div>
+</header>
+
+<div class="cta-bar">
+  <div class="cta-bar-inner">
+    <div class="cta-bar-left">
+      <span class="cta-eyebrow">Two Cents Accounting</span>
+      <span class="cta-text">Wondering how this loan fits into your accounting?</span>
+    </div>
+    <a href="https://calendar.app.google/V4yq1eU3PhU7t3R48" target="_blank" rel="noopener" class="btn-cta">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book a Free Call
+    </a>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="page-intro">
+    <h1>Loan Calculator</h1>
+    <p>Calculate your payment, or work backwards from what you already know</p>
+  </div>
+
+  <!-- ── Loan Details ── -->
+  <div class="card">
+    <div class="card-title">Loan Details</div>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button id="mtab-payment" class="mtab active" onclick="setMode('payment')">
+        <strong>Find Monthly Payment</strong>
+        <span>Know amount, rate &amp; term</span>
+      </button>
+      <button id="mtab-term" class="mtab" onclick="setMode('term')">
+        <strong>Find Loan Term</strong>
+        <span>Know amount, rate &amp; payment</span>
+      </button>
+    </div>
+
+    <!-- Shared input grid — fields shown/hidden per mode -->
+    <div class="input-grid">
+
+      <!-- Always visible -->
+      <div class="field" id="f-amount">
+        <label for="amount">Loan Amount</label>
+        <div class="input-wrap">
+          <span class="input-prefix">$</span>
+          <input type="number" id="amount" min="1" step="1000" value="300000" />
+        </div>
+        <span class="error-msg" id="err-amount">Enter a positive loan amount.</span>
+      </div>
+
+      <!-- payment + term modes -->
+      <div class="field" id="f-rate">
+        <label for="rate">Annual Interest Rate</label>
+        <div class="input-wrap">
+          <input type="number" id="rate" min="0.01" max="100" step="0.01" value="6.5" />
+          <span class="input-suffix">%</span>
+        </div>
+        <span class="error-msg" id="err-rate">Enter a rate between 0.01% and 100%.</span>
+      </div>
+
+      <!-- payment + rate modes: term years -->
+      <div class="field" id="f-term-yrs">
+        <label for="term-yrs">Term — Years</label>
+        <div class="input-wrap">
+          <input type="number" id="term-yrs" min="0" max="50" step="1" value="30" />
+          <span class="input-suffix">yr</span>
+        </div>
+        <span class="error-msg" id="err-term">Term must be at least 1 month total.</span>
+      </div>
+
+      <!-- payment + rate modes: term months -->
+      <div class="field" id="f-term-mos">
+        <label for="term-mos">Term — Extra Months</label>
+        <div class="input-wrap">
+          <input type="number" id="term-mos" min="0" max="11" step="1" value="0" />
+          <span class="input-suffix">mo</span>
+        </div>
+      </div>
+
+      <!-- term + rate reverse modes -->
+      <div class="field" id="f-given-pmt" style="display:none">
+        <label for="given-pmt">Known Monthly Payment</label>
+        <div class="input-wrap">
+          <span class="input-prefix">$</span>
+          <input type="number" id="given-pmt" min="1" step="10" placeholder="e.g. 1897" />
+        </div>
+        <span class="error-msg" id="err-given-pmt">Enter a valid monthly payment.</span>
+      </div>
+
+      <!-- Always visible -->
+      <div class="field" id="f-start">
+        <label for="start">First Payment Date</label>
+        <div class="input-wrap">
+          <input type="date" id="start" />
+        </div>
+      </div>
+
+    </div><!-- /.input-grid -->
+
+    <!-- Reverse mode validation error -->
+    <div id="rev-error" style="display:none;margin-top:10px;font-size:.8rem;color:var(--red);font-weight:600;padding:10px 14px;background:#fff0ee;border-radius:8px;border:1px solid #f8c4b8;"></div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="calculate()">Calculate</button>
+      <button class="btn-ghost"   onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <!-- ── Reverse-result banner (shown only in reverse modes) ── -->
+  <div class="card results-section" id="rev-result-card">
+    <div class="card-title" id="rev-result-title">Calculated Result</div>
+    <div class="rev-result" id="rev-result-box">
+      <div>
+        <div class="rr-label" id="rr-label">—</div>
+        <div class="rr-value" id="rr-value">—</div>
+        <div class="rr-sub"   id="rr-sub">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Summary ── -->
+  <div class="card results-section" id="summary-card">
+    <div class="card-title">Summary</div>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-label">Monthly Payment</div>
+        <div class="stat-value brand" id="res-monthly">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Principal</div>
+        <div class="stat-value" id="res-principal">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Interest</div>
+        <div class="stat-value amber" id="res-interest">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Paid</div>
+        <div class="stat-value red" id="res-total">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Final Payoff</div>
+        <div class="stat-value green stat-sm" id="res-payoff">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Loan Term</div>
+        <div class="stat-value stat-sm" id="res-term">—</div>
+      </div>
+    </div>
+    <div class="breakdown">
+      <div class="breakdown-bar">
+        <div class="bar-principal" id="bar-principal" style="width:0%"></div>
+        <div class="bar-interest"  id="bar-interest"  style="width:0%"></div>
+      </div>
+      <div class="breakdown-legend">
+        <div class="legend-item"><div class="legend-dot dot-p"></div><span id="legend-p">Principal —</span></div>
+        <div class="legend-item"><div class="legend-dot dot-i"></div><span id="legend-i">Interest —</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Chart ── -->
+  <div class="card results-section" id="chart-card">
+    <div class="card-title">Remaining Balance Over Time</div>
+    <div class="chart-legend-row" id="chart-legend-row"></div>
+    <div class="chart-wrap">
+      <canvas id="chart-canvas"></canvas>
+    </div>
+    <p class="chart-hint">Green band = interest saved by paying extra · Red band = extra cost of smaller payments · Orange dashed = refinance. Adjust sliders below to update.</p>
+  </div>
+
+  <!-- ── Scenarios ── -->
+  <div class="card results-section" id="scenarios-card">
+    <div class="card-title">Payment Scenarios — What If?</div>
+    <div class="scenario-grid">
+
+      <div class="scenario-block">
+        <div class="scenario-block-title">
+          <div class="sbt-dot" style="background:var(--green)"></div>
+          Pay It Off Early
+        </div>
+        <div class="slider-header">
+          <label for="extra-slider">Extra Per Month</label>
+          <span class="slider-live" id="extra-display">+$0</span>
+        </div>
+        <input type="range" id="extra-slider" min="0" max="2000" step="25" value="0" oninput="onExtraSlider(this.value)" />
+        <div class="slider-ticks"><span>$0 extra</span><span id="extra-max-label">$2,000 extra</span></div>
+        <div class="impact-grid">
+          <div class="impact-item"><div class="ilabel">Payoff Date</div><div class="ival neutral" id="ep-payoff">—</div></div>
+          <div class="impact-item"><div class="ilabel">Months Saved</div><div class="ival neutral" id="ep-months">—</div></div>
+          <div class="impact-item"><div class="ilabel">Interest Saved</div><div class="ival neutral" id="ep-saved">—</div></div>
+          <div class="impact-item"><div class="ilabel">New Total Paid</div><div class="ival neutral" id="ep-total">—</div></div>
+        </div>
+        <div class="vs-badge" id="ep-badge" style="display:none">vs. original: <span class="vb-diff saving" id="ep-badge-val"></span></div>
+      </div>
+
+      <div class="scenario-block">
+        <div class="scenario-block-title">
+          <div class="sbt-dot" style="background:var(--red)"></div>
+          Make Smaller Payments
+        </div>
+        <div class="slider-header">
+          <label for="reduced-slider">Monthly Payment</label>
+          <span class="slider-live" id="reduced-display">—</span>
+        </div>
+        <input type="range" id="reduced-slider" min="0" max="100" step="1" value="100" oninput="onReducedSlider(this.value)" />
+        <div class="slider-ticks"><span id="rp-min-label">Interest only</span><span id="rp-max-label">Full payment</span></div>
+        <div class="impact-grid">
+          <div class="impact-item"><div class="ilabel">Payoff Date</div><div class="ival neutral" id="rp-payoff">—</div></div>
+          <div class="impact-item"><div class="ilabel">Months Added</div><div class="ival neutral" id="rp-months">—</div></div>
+          <div class="impact-item"><div class="ilabel">Extra Interest</div><div class="ival neutral" id="rp-extra">—</div></div>
+          <div class="impact-item"><div class="ilabel">New Total Paid</div><div class="ival neutral" id="rp-total">—</div></div>
+        </div>
+        <div class="vs-badge" id="rp-badge" style="display:none">vs. original: <span class="vb-diff costing" id="rp-badge-val"></span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Refinance ── -->
+  <div class="card results-section" id="refi-card">
+    <div class="card-title">Refinance Comparison</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:13px;line-height:1.55">Enter a new rate to compare refinancing. Update <em>Balance to Refinance</em> if you're mid-loan.</p>
+    <div class="refi-inputs">
+      <div class="field">
+        <label for="refi-rate">New Interest Rate</label>
+        <div class="input-wrap">
+          <input type="number" id="refi-rate" min="0.01" max="100" step="0.01" placeholder="e.g. 5.25" oninput="calcRefi()" />
+          <span class="input-suffix">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="refi-term">New Term (years)</label>
+        <div class="input-wrap">
+          <input type="number" id="refi-term" min="1" max="50" step="1" placeholder="e.g. 30" oninput="calcRefi()" />
+          <span class="input-suffix">yr</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="refi-balance">Balance to Refinance</label>
+        <div class="input-wrap">
+          <span class="input-prefix">$</span>
+          <input type="number" id="refi-balance" min="1" step="1000" placeholder="Loan amount" oninput="calcRefi()" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="refi-costs">Closing Costs</label>
+        <div class="input-wrap">
+          <span class="input-prefix">$</span>
+          <input type="number" id="refi-costs" min="0" step="100" value="0" oninput="calcRefi()" />
+        </div>
+      </div>
+    </div>
+    <div class="refi-compare" id="refi-compare">
+      <div class="refi-col">
+        <div class="refi-col-title"><div class="rc-dot rc-dot-cur"></div> Current Loan</div>
+        <div class="refi-row"><div class="refi-row-label">Monthly Payment</div><div class="refi-row-val" id="rc-cur-pmt">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Remaining Interest</div><div class="refi-row-val" id="rc-cur-int">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Total Remaining Cost</div><div class="refi-row-val" id="rc-cur-tot">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Term</div><div class="refi-row-val" id="rc-cur-term">—</div></div>
+      </div>
+      <div class="refi-col">
+        <div class="refi-col-title"><div class="rc-dot rc-dot-refi"></div> Refinanced Loan</div>
+        <div class="refi-row"><div class="refi-row-label">Monthly Payment</div><div class="refi-row-val" id="rc-new-pmt">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Total Interest</div><div class="refi-row-val" id="rc-new-int">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Total Cost (incl. closing)</div><div class="refi-row-val" id="rc-new-tot">—</div></div>
+        <div class="refi-row"><div class="refi-row-label">Term</div><div class="refi-row-val" id="rc-new-term">—</div></div>
+      </div>
+    </div>
+    <div class="savings-banner" id="refi-banner">
+      <div class="sb-label" id="refi-banner-label">—</div>
+      <div class="sb-value" id="refi-banner-val">—</div>
+      <div class="sb-sub"   id="refi-banner-sub">—</div>
+    </div>
+  </div>
+
+  <!-- ── Amortization ── -->
+  <div class="card results-section" id="schedule-card">
+    <div class="card-title">Amortization Schedule</div>
+    <div class="table-controls">
+      <span id="table-info"></span>
+      <div class="view-toggle">
+        <button id="btn-monthly" class="active" onclick="switchView('monthly')">Monthly</button>
+        <button id="btn-yearly"  onclick="switchView('yearly')">Yearly</button>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead id="tbl-head"></thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <span id="footer-yr"></span> Two Cents Accounting &nbsp;·&nbsp; For illustrative purposes only.
+</footer>
+
+<script>
+  document.getElementById('footer-yr').textContent = '© ' + new Date().getFullYear();
+  (function() {
+    const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
+    document.getElementById('start').value = d.toISOString().slice(0, 10);
+  })();
+
+  // ── Formatters ─────────────────────────────────────────────────────────────
+  const fmt  = n => new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2 }).format(n);
+  const fmtK = n => new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', maximumFractionDigits:0 }).format(n);
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function termStr(totalMonths) {
+    const yrs = Math.floor(totalMonths / 12);
+    const mos = totalMonths % 12;
+    if (yrs === 0) return mos + ' month' + (mos !== 1 ? 's' : '');
+    if (mos === 0) return yrs + ' year' + (yrs !== 1 ? 's' : '');
+    return yrs + ' yr ' + mos + ' mo';
+  }
+
+  function axisVal(n) {
+    if (n >= 1e6) return '$' + (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+    if (n >= 1e3) return '$' + Math.round(n/1000) + 'K';
+    return '$' + Math.round(n);
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let currentMode   = 'payment';
+  let baseRows      = [];
+  let extraRows     = [];
+  let reducedRows   = [];
+  let refiRows      = [];
+  let baseMonthly   = 0;
+  let basePrincipal = 0;
+  let baseInterest  = 0;
+  let baseStartDate = '';
+  let baseAnnRate   = 0;
+  let baseTermMonths = 0;
+
+  // ── Mode switching ─────────────────────────────────────────────────────────
+  function setMode(mode) {
+    currentMode = mode;
+    ['payment','term'].forEach(m => {
+      document.getElementById('mtab-' + m).classList.toggle('active', m === mode);
+    });
+    // term fields: hidden in term mode (we're solving for them)
+    document.getElementById('f-term-yrs').style.display   = mode === 'term' ? 'none' : '';
+    document.getElementById('f-term-mos').style.display   = mode === 'term' ? 'none' : '';
+    // given payment: visible only in term mode
+    document.getElementById('f-given-pmt').style.display  = mode === 'payment' ? 'none' : '';
+    // clear errors
+    document.getElementById('rev-error').style.display = 'none';
+    clearErrors();
+  }
+
+  // ── Solvers ────────────────────────────────────────────────────────────────
+  // Given amount, annual rate, payment → term in months (closed-form)
+  function solveTerm(P, rAnnual, PMT) {
+    const r = rAnnual / 100 / 12;
+    if (PMT <= 0 || P <= 0) return null;
+    if (r === 0) return PMT > 0 ? P / PMT : null;
+    if (PMT <= P * r) return null; // payment can't cover interest
+    const n = -Math.log(1 - (P * r) / PMT) / Math.log(1 + r);
+    return n > 0 && isFinite(n) ? n : null;
+  }
+
+  // ── Amortize ───────────────────────────────────────────────────────────────
+  // termMonths: total number of monthly payments
+  function amortize(principal, annRate, termMonths, startStr, overridePmt) {
+    const r = annRate / 100 / 12;
+    const n = termMonths;
+    const std = (n <= 0) ? 0 : r === 0 ? principal / n
+      : principal * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n) - 1);
+    const pmt = overridePmt !== undefined ? overridePmt : std;
+    const rows = [];
+    let bal = principal;
+    const d = new Date(startStr + 'T00:00:00');
+    while (bal > 0.005 && rows.length < 720) {
+      const interest = bal * r;
+      const prinPmt  = Math.min(pmt - interest, bal);
+      if (prinPmt <= 0) break;
+      bal = Math.max(bal - prinPmt, 0);
+      rows.push({ num: rows.length+1, date: new Date(d), payment: interest+prinPmt, principal: prinPmt, interest, balance: bal });
+      d.setMonth(d.getMonth() + 1);
+    }
+    return { std, rows };
+  }
+
+  // ── Validation ─────────────────────────────────────────────────────────────
+  function clearErrors() {
+    ['amount','rate','term','given-pmt'].forEach(id => {
+      const el = document.getElementById(id === 'term' ? 'term-yrs' : id);
+      if (el) el.classList.remove('invalid');
+      const err = document.getElementById('err-' + id);
+      if (err) err.style.display = 'none';
+    });
+  }
+
+  function validate() {
+    clearErrors();
+    let ok = true;
+
+    // Amount always required
+    const amt = parseFloat(document.getElementById('amount').value);
+    if (isNaN(amt) || amt <= 0) {
+      document.getElementById('amount').classList.add('invalid');
+      document.getElementById('err-amount').style.display = 'block';
+      ok = false;
+    }
+
+    if (currentMode === 'payment' || currentMode === 'term') {
+      const rate = parseFloat(document.getElementById('rate').value);
+      if (isNaN(rate) || rate < 0.01 || rate > 100) {
+        document.getElementById('rate').classList.add('invalid');
+        document.getElementById('err-rate').style.display = 'block';
+        ok = false;
+      }
+    }
+
+    if (currentMode === 'payment') {
+      const yrs = parseInt(document.getElementById('term-yrs').value) || 0;
+      const mos = parseInt(document.getElementById('term-mos').value) || 0;
+      if (yrs * 12 + mos < 1) {
+        document.getElementById('term-yrs').classList.add('invalid');
+        document.getElementById('err-term').style.display = 'block';
+        ok = false;
+      }
+    }
+
+    if (currentMode === 'term') {
+      const pmt = parseFloat(document.getElementById('given-pmt').value);
+      if (isNaN(pmt) || pmt <= 0) {
+        document.getElementById('given-pmt').classList.add('invalid');
+        document.getElementById('err-given-pmt').style.display = 'block';
+        ok = false;
+      }
+    }
+
+    return ok;
+  }
+
+  // ── Calculate ──────────────────────────────────────────────────────────────
+  function calculate() {
+    if (!validate()) return;
+    document.getElementById('rev-error').style.display = 'none';
+    document.getElementById('rev-result-card').classList.remove('visible');
+
+    basePrincipal = parseFloat(document.getElementById('amount').value);
+    baseStartDate = document.getElementById('start').value || new Date().toISOString().slice(0,10);
+
+    // ── Standard: find payment ──
+    if (currentMode === 'payment') {
+      baseAnnRate    = parseFloat(document.getElementById('rate').value);
+      const yrs      = parseInt(document.getElementById('term-yrs').value) || 0;
+      const mos      = parseInt(document.getElementById('term-mos').value) || 0;
+      baseTermMonths = yrs * 12 + mos;
+
+      const { std, rows } = amortize(basePrincipal, baseAnnRate, baseTermMonths, baseStartDate);
+      baseRows    = rows;
+      baseMonthly = std;
+    }
+
+    // ── Reverse: find term ──
+    else if (currentMode === 'term') {
+      baseAnnRate = parseFloat(document.getElementById('rate').value);
+      const givenPmt = parseFloat(document.getElementById('given-pmt').value);
+
+      const nFrac = solveTerm(basePrincipal, baseAnnRate, givenPmt);
+      if (!nFrac || nFrac <= 0) {
+        showRevError('Your payment of ' + fmt(givenPmt) + ' is too low to cover the monthly interest at ' + baseAnnRate + '%. Try a higher payment or lower rate.');
+        return;
+      }
+      baseTermMonths = Math.ceil(nFrac);
+      baseMonthly    = givenPmt;
+
+      const { rows } = amortize(basePrincipal, baseAnnRate, baseTermMonths, baseStartDate, givenPmt);
+      baseRows = rows;
+
+      showRevResult('found-term',
+        'Estimated Loan Term',
+        termStr(baseTermMonths),
+        'At ' + fmt(givenPmt) + '/mo · ' + baseAnnRate + '% annual rate'
+      );
+    }
+
+    // Shared post-calc
+    baseInterest = baseRows.reduce((s,r) => s+r.interest, 0);
+    const totalPaid = baseRows.reduce((s,r) => s+r.payment, 0);
+    const lastDate  = baseRows.length ? baseRows[baseRows.length-1].date : null;
+
+    document.getElementById('res-monthly').textContent   = fmt(baseMonthly);
+    document.getElementById('res-principal').textContent = fmt(basePrincipal);
+    document.getElementById('res-interest').textContent  = fmt(baseInterest);
+    document.getElementById('res-total').textContent     = fmt(totalPaid);
+    document.getElementById('res-term').textContent      = termStr(baseTermMonths);
+    document.getElementById('res-payoff').textContent    = lastDate
+      ? MONTHS[lastDate.getMonth()] + ' ' + lastDate.getFullYear() : '—';
+
+    const pPct = (basePrincipal/totalPaid*100).toFixed(1);
+    const iPct = (baseInterest/totalPaid*100).toFixed(1);
+    document.getElementById('bar-principal').style.width = pPct + '%';
+    document.getElementById('bar-interest').style.width  = iPct + '%';
+    document.getElementById('legend-p').textContent = `Principal ${pPct}% (${fmt(basePrincipal)})`;
+    document.getElementById('legend-i').textContent = `Interest ${iPct}% (${fmt(baseInterest)})`;
+
+    ['summary-card','chart-card','scenarios-card','refi-card','schedule-card'].forEach(id =>
+      document.getElementById(id).classList.add('visible'));
+
+    // Reset scenarios
+    extraRows = []; reducedRows = []; refiRows = [];
+
+    // Extra payment slider
+    const sliderMax = Math.ceil(baseMonthly * 2 / 50) * 50;
+    const es = document.getElementById('extra-slider');
+    es.max = sliderMax; es.value = 0;
+    document.getElementById('extra-max-label').textContent = fmtK(sliderMax) + ' extra';
+    onExtraSlider(0);
+
+    // Reduced slider
+    const intOnly = basePrincipal * (baseAnnRate / 100 / 12);
+    document.getElementById('rp-min-label').textContent = fmtK(intOnly) + ' (int. only)';
+    document.getElementById('rp-max-label').textContent = fmtK(baseMonthly);
+    document.getElementById('reduced-slider').value = 100;
+    onReducedSlider(100);
+
+    // Refi defaults
+    document.getElementById('refi-balance').value = basePrincipal;
+    if (!document.getElementById('refi-term').value)
+      document.getElementById('refi-term').value = Math.round(baseTermMonths / 12);
+    calcRefi();
+
+    document.getElementById('table-info').textContent =
+      `${baseRows.length} payments · ${termStr(baseTermMonths)}`;
+    renderTable('monthly');
+    drawChart();
+  }
+
+  function showRevError(msg) {
+    const el = document.getElementById('rev-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function showRevResult(cls, label, value, sub) {
+    const card = document.getElementById('rev-result-card');
+    const box  = document.getElementById('rev-result-box');
+    card.classList.add('visible');
+    box.className = 'rev-result visible ' + cls;
+    document.getElementById('rr-label').textContent = label;
+    document.getElementById('rr-value').textContent = value;
+    document.getElementById('rr-sub').textContent   = sub;
+    document.getElementById('rev-result-title').textContent = 'Calculated Loan Term';
+  }
+
+  // ── Extra payment slider ───────────────────────────────────────────────────
+  function onExtraSlider(val) {
+    val = parseFloat(val);
+    document.getElementById('extra-display').textContent = '+' + fmtK(val);
+    if (!baseRows.length) return;
+
+    extraRows = val > 0
+      ? amortize(basePrincipal, baseAnnRate, baseTermMonths, baseStartDate, baseMonthly + val).rows
+      : [];
+
+    const rows   = extraRows.length ? extraRows : baseRows;
+    const newInt = rows.reduce((s,r) => s+r.interest, 0);
+    const newTot = rows.reduce((s,r) => s+r.payment, 0);
+    const saved  = baseRows.length - rows.length;
+    const intSav = baseInterest - newInt;
+    const last   = rows[rows.length-1].date;
+
+    setImpact('ep-payoff', MONTHS[last.getMonth()] + ' ' + last.getFullYear(), 'neutral');
+    setImpact('ep-months', saved > 0 ? saved + ' mo' : '—',  saved > 0 ? 'saving' : 'neutral');
+    setImpact('ep-saved',  saved > 0 ? fmtK(intSav) : '—',   saved > 0 ? 'saving' : 'neutral');
+    setImpact('ep-total',  fmtK(newTot), saved > 0 ? 'saving' : 'neutral');
+
+    const badge = document.getElementById('ep-badge');
+    if (saved > 0) {
+      badge.style.display = 'inline-flex';
+      document.getElementById('ep-badge-val').textContent = fmtK(intSav) + ' saved · ' + saved + ' fewer payments';
+    } else {
+      badge.style.display = 'none';
+    }
+    drawChart();
+  }
+
+  // ── Reduced payment slider ─────────────────────────────────────────────────
+  function onReducedSlider(pct) {
+    pct = parseFloat(pct);
+    if (!baseRows.length) return;
+
+    const intOnly = basePrincipal * (baseAnnRate / 100 / 12);
+    const payment = intOnly + (baseMonthly - intOnly) * (pct / 100);
+    document.getElementById('reduced-display').textContent = fmtK(payment) + '/mo';
+
+    if (pct >= 100) {
+      reducedRows = [];
+      const last = baseRows[baseRows.length-1].date;
+      setImpact('rp-payoff', MONTHS[last.getMonth()] + ' ' + last.getFullYear(), 'neutral');
+      setImpact('rp-months', '0 mo', 'neutral');
+      setImpact('rp-extra',  '$0',   'neutral');
+      setImpact('rp-total',  fmtK(baseRows.reduce((s,r)=>s+r.payment,0)), 'neutral');
+      document.getElementById('rp-badge').style.display = 'none';
+      drawChart(); return;
+    }
+
+    const { rows } = amortize(basePrincipal, baseAnnRate, baseTermMonths, baseStartDate, payment);
+    if (!rows.length) {
+      reducedRows = [];
+      ['rp-payoff','rp-months','rp-extra','rp-total'].forEach(id => setImpact(id, '—', 'costing'));
+      document.getElementById('rp-badge').style.display = 'none';
+      drawChart(); return;
+    }
+
+    reducedRows = rows;
+    const newInt = rows.reduce((s,r) => s+r.interest, 0);
+    const newTot = rows.reduce((s,r) => s+r.payment, 0);
+    const added  = rows.length - baseRows.length;
+    const extInt = newInt - baseInterest;
+    const last   = rows[rows.length-1].date;
+
+    setImpact('rp-payoff', MONTHS[last.getMonth()] + ' ' + last.getFullYear(), 'neutral');
+    setImpact('rp-months', added > 0 ? '+' + added + ' mo' : '0 mo', added > 0 ? 'costing' : 'neutral');
+    setImpact('rp-extra',  added > 0 ? '+' + fmtK(extInt) : '$0',    added > 0 ? 'costing' : 'neutral');
+    setImpact('rp-total',  fmtK(newTot), added > 0 ? 'costing' : 'neutral');
+
+    const badge = document.getElementById('rp-badge');
+    if (added > 0) {
+      badge.style.display = 'inline-flex';
+      document.getElementById('rp-badge-val').textContent = '+' + fmtK(extInt) + ' extra interest · +' + added + ' more payments';
+    } else {
+      badge.style.display = 'none';
+    }
+    drawChart();
+  }
+
+  function setImpact(id, text, cls) {
+    const el = document.getElementById(id);
+    el.textContent = text; el.className = 'ival ' + cls;
+  }
+
+  // ── Refinance ──────────────────────────────────────────────────────────────
+  function calcRefi() {
+    const newRate = parseFloat(document.getElementById('refi-rate').value);
+    const newTerm = (parseInt(document.getElementById('refi-term').value, 10) || Math.round(baseTermMonths/12)) * 12;
+    const balance = parseFloat(document.getElementById('refi-balance').value) || basePrincipal;
+    const closing = parseFloat(document.getElementById('refi-costs').value) || 0;
+
+    if (!baseRows.length || isNaN(newRate) || isNaN(balance)) {
+      document.getElementById('refi-compare').style.display = 'none';
+      document.getElementById('refi-banner').style.display  = 'none';
+      refiRows = []; drawChart(); return;
+    }
+
+    const curR   = baseAnnRate / 100 / 12;
+    const curN   = baseTermMonths;
+    const curPmt = curR === 0 ? balance/curN
+      : balance * (curR*Math.pow(1+curR,curN)) / (Math.pow(1+curR,curN)-1);
+
+    const newR   = newRate / 100 / 12;
+    const newPmt = newR === 0 ? balance/newTerm
+      : balance * (newR*Math.pow(1+newR,newTerm)) / (Math.pow(1+newR,newTerm)-1);
+    const newTotal = newPmt * newTerm + closing;
+    const curTotal = curPmt * curN;
+    const savings  = curTotal - newTotal;
+
+    document.getElementById('rc-cur-pmt').textContent  = fmt(curPmt);
+    document.getElementById('rc-cur-int').textContent  = fmt(curPmt*curN - balance);
+    document.getElementById('rc-cur-tot').textContent  = fmt(curTotal);
+    document.getElementById('rc-cur-term').textContent = termStr(curN);
+    document.getElementById('rc-new-pmt').textContent  = fmt(newPmt);
+    document.getElementById('rc-new-int').textContent  = fmt(newPmt*newTerm - balance);
+    document.getElementById('rc-new-tot').textContent  = fmt(newTotal);
+    document.getElementById('rc-new-term').textContent = termStr(newTerm);
+    document.getElementById('refi-compare').style.display = 'grid';
+
+    const banner = document.getElementById('refi-banner');
+    banner.style.display = 'block';
+    banner.className = 'savings-banner ' + (savings > 0 ? 'positive' : 'negative');
+    document.getElementById('refi-banner-label').textContent = savings > 0 ? 'Total Savings by Refinancing' : 'Additional Cost to Refinance';
+    const bVal = document.getElementById('refi-banner-val');
+    bVal.className = 'sb-value ' + (savings > 0 ? 'positive' : 'negative');
+    bVal.textContent = fmt(Math.abs(savings));
+    const d = newPmt - curPmt;
+    document.getElementById('refi-banner-sub').textContent = 'Monthly payment ' + (d >= 0 ? '+' : '') + fmt(d) + ' vs. current';
+
+    refiRows = amortize(balance, newRate, newTerm, baseStartDate).rows;
+    drawChart();
+  }
+
+  // ── Chart ──────────────────────────────────────────────────────────────────
+  let rafId = null;
+  function drawChart() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => { rafId = null; _drawChart(); });
+  }
+
+  function _drawChart() {
+    const canvas = document.getElementById('chart-canvas');
+    if (!canvas || !baseRows.length) return;
+    const dpr  = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width, H = rect.height;
+    const pad = { top: 28, right: 22, bottom: 36, left: W < 380 ? 50 : 64 };
+    const cW  = W - pad.left - pad.right;
+    const cH  = H - pad.top  - pad.bottom;
+
+    const allSeries = [baseRows, extraRows, reducedRows, refiRows].filter(s => s.length);
+    const maxM = Math.max(...allSeries.map(s => s.length));
+    const maxB = basePrincipal;
+
+    const toX = m => pad.left + (m / maxM) * cW;
+    const toY = b => pad.top  + cH - Math.max(0, Math.min((b / maxB) * cH, cH));
+
+    ctx.clearRect(0, 0, W, H);
+
+    const baseFont = `${W < 380 ? 9 : 10.5}px -apple-system,sans-serif`;
+    ctx.font = baseFont;
+
+    // Grid Y
+    for (let i = 0; i <= 5; i++) {
+      const y = pad.top + (i / 5) * cH;
+      ctx.strokeStyle = '#ede8e2'; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#9a9189'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(axisVal(maxB * (1 - i/5)), pad.left - 5, y);
+    }
+
+    // Grid X
+    const totalYrs = Math.ceil(maxM / 12);
+    const yrStep   = totalYrs <= 10 ? 2 : totalYrs <= 20 ? 5 : 10;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let yr = 0; yr <= totalYrs; yr += yrStep) {
+      const x = toX(yr * 12);
+      ctx.strokeStyle = '#ede8e2'; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + cH); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#9a9189';
+      ctx.fillText('Yr ' + yr, x, pad.top + cH + 7);
+    }
+
+    // Axes
+    ctx.strokeStyle = '#d0c8c0'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.left, pad.top - 4); ctx.lineTo(pad.left, pad.top + cH); ctx.lineTo(W - pad.right, pad.top + cH); ctx.stroke();
+
+    // Band fill between two series
+    function drawBand(frontRows, backRows, color) {
+      if (!frontRows.length || !backRows.length) return;
+      const limit = Math.min(frontRows.length, backRows.length);
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(basePrincipal));
+      for (let i = 0; i < limit; i++) ctx.lineTo(toX(i+1), toY(frontRows[i].balance));
+      for (let i = limit-1; i >= 0; i--) ctx.lineTo(toX(i+1), toY(backRows[i].balance));
+      ctx.closePath();
+      ctx.fillStyle = color; ctx.fill();
+    }
+
+    // Line series
+    function drawLine(rows, color, lw, dashed) {
+      if (!rows.length) return;
+      ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin = 'round';
+      ctx.setLineDash(dashed ? [8,5] : []);
+      ctx.moveTo(toX(0), toY(basePrincipal));
+      rows.forEach((r, i) => ctx.lineTo(toX(i+1), toY(r.balance)));
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // Endpoint dot with pill label
+    function endDot(rows, color, labelText, above) {
+      if (!rows.length) return;
+      const x = toX(rows.length), y = toY(rows[rows.length-1].balance);
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+
+      if (!labelText) return;
+      ctx.font = `700 ${W<380?8.5:9.5}px -apple-system,sans-serif`;
+      const tw = ctx.measureText(labelText).width;
+      const bw = tw + 10, bh = 16, br = 5;
+      let bx = Math.max(pad.left, Math.min(x - bw/2, W - pad.right - bw));
+      const by = above ? y - bh - 5 : y + 5;
+      ctx.fillStyle = color;
+      ctx.beginPath(); rrect(ctx, bx, by, bw, bh, br); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(labelText, bx + bw/2, by + bh/2);
+      ctx.font = baseFont;
+    }
+
+    // Mid-band annotation
+    function bandLabel(rowsA, rowsB, color, text) {
+      if (!rowsA.length || !rowsB.length || !text) return;
+      const mi = Math.floor(Math.min(rowsA.length, rowsB.length) * 0.45);
+      const x  = toX(mi);
+      const yA = rowsA[mi] ? toY(rowsA[mi].balance) : toY(0);
+      const yB = rowsB[mi] ? toY(rowsB[mi].balance) : toY(0);
+      const yM = (yA + yB) / 2;
+      ctx.font = `700 ${W<380?8.5:9.5}px -apple-system,sans-serif`;
+      const tw = ctx.measureText(text).width;
+      const bw = tw + 14, bh = 18, br = 5;
+      const bx = x - bw/2;
+      if (bx < pad.left || bx + bw > W - pad.right) { ctx.font = baseFont; return; }
+      ctx.fillStyle = 'rgba(255,255,255,.88)';
+      ctx.beginPath(); rrect(ctx, bx, yM - bh/2, bw, bh, br); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+      ctx.beginPath(); rrect(ctx, bx, yM - bh/2, bw, bh, br); ctx.stroke();
+      ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, bx + bw/2, yM);
+      ctx.font = baseFont;
+    }
+
+    function rrect(ctx, x, y, w, h, r) {
+      ctx.moveTo(x+r, y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+    }
+
+    // Base fill
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(basePrincipal));
+    baseRows.forEach((r,i) => ctx.lineTo(toX(i+1), toY(r.balance)));
+    ctx.lineTo(toX(baseRows.length), toY(0)); ctx.lineTo(toX(0), toY(0)); ctx.closePath();
+    ctx.fillStyle = 'rgba(26,26,26,.04)'; ctx.fill();
+
+    // Difference bands
+    if (extraRows.length)   drawBand(extraRows, baseRows, 'rgba(30,138,90,.15)');
+    if (reducedRows.length) drawBand(baseRows, reducedRows, 'rgba(192,57,43,.12)');
+    if (refiRows.length) {
+      refiRows.length < baseRows.length
+        ? drawBand(refiRows, baseRows, 'rgba(212,96,58,.13)')
+        : drawBand(baseRows, refiRows, 'rgba(212,96,58,.11)');
+    }
+
+    // Lines
+    drawLine(baseRows,    '#2c2c2c', 2.5, false);
+    drawLine(extraRows,   '#1e8a5a', 2,   false);
+    drawLine(reducedRows, '#c0392b', 2,   false);
+    drawLine(refiRows,    '#D4603A', 2,   true);
+
+    // Endpoint labels
+    const bLast = baseRows[baseRows.length-1].date;
+    endDot(baseRows, '#2c2c2c', MONTHS[bLast.getMonth()] + ' ' + bLast.getFullYear(), true);
+
+    if (extraRows.length) {
+      const eLast = extraRows[extraRows.length-1].date;
+      const intSav = baseInterest - extraRows.reduce((s,r)=>s+r.interest,0);
+      endDot(extraRows, '#1e8a5a', MONTHS[eLast.getMonth()] + ' ' + eLast.getFullYear(), false);
+      bandLabel(baseRows, extraRows, '#1e8a5a', '↓ Save ' + fmtK(intSav));
+    }
+    if (reducedRows.length) {
+      const rLast = reducedRows[reducedRows.length-1].date;
+      const extInt = reducedRows.reduce((s,r)=>s+r.interest,0) - baseInterest;
+      endDot(reducedRows, '#c0392b', MONTHS[rLast.getMonth()] + ' ' + rLast.getFullYear(), true);
+      bandLabel(reducedRows, baseRows, '#c0392b', '+' + fmtK(extInt) + ' extra');
+    }
+    if (refiRows.length) {
+      const rLast = refiRows[refiRows.length-1].date;
+      endDot(refiRows, '#D4603A', MONTHS[rLast.getMonth()] + ' ' + rLast.getFullYear(), refiRows.length < baseRows.length);
+    }
+
+    // HTML legend
+    const items = [{ color:'#2c2c2c', label:'Original loan', dashed:false }];
+    if (extraRows.length)   items.push({ color:'#1e8a5a', label:'Extra payments',   dashed:false });
+    if (reducedRows.length) items.push({ color:'#c0392b', label:'Reduced payments', dashed:false });
+    if (refiRows.length)    items.push({ color:'#D4603A', label:'Refinanced',        dashed:true  });
+
+    document.getElementById('chart-legend-row').innerHTML = items.map(it => {
+      const s = it.dashed
+        ? `background:repeating-linear-gradient(to right,${it.color} 0,${it.color} 5px,transparent 5px,transparent 9px);`
+        : `background:${it.color};`;
+      return `<div class="cl-item"><div style="${s}height:3px;width:28px;border-radius:2px;flex-shrink:0;"></div><span>${it.label}</span></div>`;
+    }).join('');
+  }
+
+  let resizeTimer;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawChart, 80); });
+
+  // ── Table ──────────────────────────────────────────────────────────────────
+  function groupByYear(rows) {
+    const map = {};
+    rows.forEach(r => {
+      const y = r.date.getFullYear();
+      if (!map[y]) map[y] = { year:y, payment:0, principal:0, interest:0, balance:0, count:0 };
+      map[y].payment += r.payment; map[y].principal += r.principal;
+      map[y].interest += r.interest; map[y].balance = r.balance; map[y].count++;
+    });
+    return Object.values(map);
+  }
+
+  function renderTable(view) {
+    const head = document.getElementById('tbl-head');
+    const body = document.getElementById('tbl-body');
+    if (view === 'monthly') {
+      head.innerHTML = `<tr><th style="text-align:left">#</th><th>Date</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>`;
+      body.innerHTML = baseRows.map(r => `<tr>
+        <td>#${r.num}</td>
+        <td>${MONTHS[r.date.getMonth()]} ${r.date.getFullYear()}</td>
+        <td>${fmt(r.payment)}</td>
+        <td class="pri-cell">${fmt(r.principal)}</td>
+        <td class="int-cell">${fmt(r.interest)}</td>
+        <td class="bal-cell">${fmt(r.balance)}</td>
+      </tr>`).join('');
+    } else {
+      head.innerHTML = `<tr><th style="text-align:left">Year</th><th>Pmts</th><th>Total Paid</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>`;
+      body.innerHTML = groupByYear(baseRows).map(y => `<tr class="year-row">
+        <td>${y.year}</td><td>${y.count}</td>
+        <td>${fmt(y.payment)}</td>
+        <td class="pri-cell">${fmt(y.principal)}</td>
+        <td class="int-cell">${fmt(y.interest)}</td>
+        <td class="bal-cell">${fmt(y.balance)}</td>
+      </tr>`).join('');
+    }
+  }
+
+  function switchView(v) {
+    document.getElementById('btn-monthly').classList.toggle('active', v==='monthly');
+    document.getElementById('btn-yearly').classList.toggle('active',  v==='yearly');
+    renderTable(v);
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────────
+  function resetForm() {
+    setMode('payment');
+    document.getElementById('amount').value   = '300000';
+    document.getElementById('rate').value     = '6.5';
+    document.getElementById('term-yrs').value = '30';
+    document.getElementById('term-mos').value = '0';
+    document.getElementById('given-pmt').value = '';
+    const d = new Date(); d.setMonth(d.getMonth()+1); d.setDate(1);
+    document.getElementById('start').value = d.toISOString().slice(0,10);
+    clearErrors();
+    document.getElementById('rev-error').style.display = 'none';
+    ['summary-card','chart-card','scenarios-card','refi-card','schedule-card','rev-result-card'].forEach(id =>
+      document.getElementById(id).classList.remove('visible'));
+    baseRows = extraRows = reducedRows = refiRows = [];
+    baseMonthly = basePrincipal = baseInterest = baseTermMonths = 0;
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+</script>
+</body>
+</html>
