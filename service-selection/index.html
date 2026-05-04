@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Your Two Cents Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F5F0E8;
+      --surface: #FFFFFF;
+      --text: #2C2C2C;
+      --accent: #E8622A;
+      --accent-hover: #CF541F;
+      --muted: #7A7470;
+      --border: #DDD7CC;
+      --sel-bg: rgba(232,98,42,0.08);
+      --secondary-surface: #F0EBE1;
+      --shadow: rgba(0,0,0,0.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1E1E1E;
+        --surface: #2C2C2C;
+        --text: #F0EBE1;
+        --accent: #E8622A;
+        --accent-hover: #F0722A;
+        --muted: #9A9490;
+        --border: #404040;
+        --sel-bg: rgba(232,98,42,0.14);
+        --secondary-surface: #252525;
+        --shadow: rgba(0,0,0,0.25);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 16px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wrap { width: 100%; max-width: 620px; }
+
+    /* ── Header ── */
+    .site-header { text-align: center; margin-bottom: 36px; }
+    .site-header .eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+    }
+    .site-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.65rem, 4vw, 2.2rem);
+      font-weight: 700; line-height: 1.2; margin-bottom: 10px;
+    }
+    .site-header p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── Progress ── */
+    .progress-wrap { margin-bottom: 22px; }
+    .progress-label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+      display: block;
+    }
+    .progress-track {
+      width: 100%; height: 3px; background: var(--border); border-radius: 99px;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent); border-radius: 99px;
+      transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: clamp(22px, 5vw, 40px);
+      box-shadow: 0 4px 28px var(--shadow);
+    }
+
+    /* ── Question ── */
+    .question-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 600; line-height: 1.4; margin-bottom: 6px;
+    }
+    .question-hint { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+    .question-gap { margin-bottom: 20px; }
+
+    /* ── Options ── */
+    .options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 26px; }
+    .option {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 13px 15px; border: 1.5px solid var(--border);
+      border-radius: 11px; cursor: pointer;
+      transition: border-color 0.17s, background 0.17s;
+      background: transparent; user-select: none;
+    }
+    .option:hover { border-color: var(--accent); background: var(--sel-bg); }
+    .option.selected { border-color: var(--accent); background: var(--sel-bg); }
+
+    .indicator {
+      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.17s, background 0.17s;
+    }
+    .option.selected .indicator { border-color: var(--accent); background: var(--accent); }
+    .indicator-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #fff;
+      opacity: 0; transform: scale(0);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .option.selected .indicator-dot { opacity: 1; transform: scale(1); }
+
+    .indicator.chk { border-radius: 5px; }
+    .indicator-check { font-size: 11px; font-weight: 700; color: #fff; opacity: 0; transition: opacity 0.15s; }
+    .option.selected .indicator-check { opacity: 1; }
+
+    .option-text { font-size: 0.88rem; line-height: 1.55; color: var(--text); padding-top: 1px; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 15px 24px;
+      background: var(--accent); color: #fff; border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.17s, transform 0.15s, opacity 0.17s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.32; cursor: not-allowed; transform: none; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; background: transparent;
+      color: var(--accent); border: 1.5px solid var(--accent); border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600;
+      text-decoration: none; transition: background 0.17s;
+    }
+    .btn-outline:hover { background: var(--sel-bg); }
+
+    /* ── Results ── */
+    .rec-eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    .rec-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700; color: var(--accent); line-height: 1.15; margin-bottom: 5px;
+    }
+    .rec-price { font-size: 0.875rem; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
+    .rec-why { font-size: 0.9rem; line-height: 1.78; color: var(--text); margin-bottom: 26px; }
+
+    .divider { height: 1px; background: var(--border); margin: 26px 0; }
+
+    .note-box {
+      background: var(--sel-bg); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; padding: 14px 16px; margin-top: 20px;
+      font-size: 0.86rem; line-height: 1.68; color: var(--text);
+    }
+
+    /* ── Secondary rec ── */
+    .secondary-wrap {
+      background: var(--secondary-surface); border-radius: 12px; padding: 22px 22px 18px;
+    }
+    .secondary-label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    .secondary-name {
+      font-family: 'Playfair Display', serif; font-size: 1.15rem;
+      font-weight: 600; color: var(--text); margin-bottom: 4px;
+    }
+    .secondary-price { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
+    .secondary-why { font-size: 0.86rem; line-height: 1.68; color: var(--muted); margin-bottom: 16px; }
+
+    /* ── Results footer ── */
+    .results-footer {
+      text-align: center; margin-top: 26px;
+      display: flex; flex-direction: column; align-items: center; gap: 13px;
+    }
+    .discovery-text { font-size: 0.86rem; color: var(--muted); }
+    .discovery-text a { color: var(--accent); text-underline-offset: 3px; }
+    .start-over-btn {
+      background: none; border: none; font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem; color: var(--muted); cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px; padding: 0;
+    }
+    .start-over-btn:hover { color: var(--text); }
+
+    /* ── Budget redirect ── */
+    .redirect-intro {
+      background: var(--sel-bg); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; padding: 14px 16px; margin-bottom: 28px;
+      font-size: 0.9rem; line-height: 1.72; color: var(--text);
+    }
+    .diy-grid { display: flex; flex-direction: column; gap: 14px; }
+    .diy-card { background: var(--secondary-surface); border-radius: 12px; padding: 20px 22px; }
+    .diy-name {
+      font-family: 'Playfair Display', serif; font-size: 1.1rem;
+      font-weight: 600; color: var(--accent); margin-bottom: 3px;
+    }
+    .diy-price { font-size: 0.8rem; color: var(--muted); margin-bottom: 9px; }
+    .diy-desc { font-size: 0.86rem; line-height: 1.68; color: var(--text); margin-bottom: 14px; }
+    .diy-card .btn-primary { width: auto; display: inline-flex; padding: 11px 20px; font-size: 0.85rem; }
+
+    @media (max-width: 480px) {
+      body { padding: 24px 12px 48px; }
+      .card { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <div class="eyebrow">Two Cents Accounting</div>
+    <h1>Find Your Fit</h1>
+    <p>A few quick questions and we'll point you to the service that actually makes sense for where you are right now.</p>
+  </header>
+
+  <div id="quiz">
+    <div class="progress-wrap">
+      <span class="progress-label" id="prog-label">Step 1 of 3</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:33%"></div>
+      </div>
+    </div>
+    <div class="card" id="card"></div>
+  </div>
+
+  <div id="results" style="display:none;">
+    <div class="card" id="results-card"></div>
+  </div>
+</div>
+
+<script>
+const LINKS = {
+  essentials:      'https://calendar.app.google/Z8MARuxmy7APqrUFA',
+  standard:        'https://calendar.app.google/EqcwedgpocyCb7aq9',
+  premium:         'https://calendar.app.google/daxx7yTCb6Cwj1Qo8',
+  quickQuestion:   'https://calendar.app.google/ck2XFwEBHLdnUn169',
+  trainingSession: 'https://calendar.app.google/9b36DFM1ZoSDuC6y7',
+  ledgerLounge:    'https://community.twocentsaccounting.com/checkout/ledger-lounge-back-office',
+  booksReview:     'https://calendar.app.google/tn7TnGRM9jZZmU45A'
+};
+
+const SVC = {
+  essentials:      { name: 'Essentials',                       price: '$375/month',              cta: 'Book a Discovery Call',      link: LINKS.essentials },
+  standard:        { name: 'Standard',                         price: '$1,275/month',            cta: 'Book a Discovery Call',      link: LINKS.standard },
+  premium:         { name: 'Premium',                          price: '$2,500/month',            cta: 'Book a Discovery Call',      link: LINKS.premium },
+  quickQuestion:   { name: 'Quick Question',                   price: '$50',                     cta: 'Book Your Quick Question',   link: LINKS.quickQuestion },
+  trainingSession: { name: 'Training / Support Session',       price: '$150',                    cta: 'Schedule a Session',         link: LINKS.trainingSession },
+  ledgerLounge:    { name: 'Ledger Lounge Back Office',        price: '$47/month',               cta: 'Join the Community',         link: LINKS.ledgerLounge },
+  booksReview:     { name: 'Books Review &amp; Deep Dive Analysis', price: 'Pricing based on scope', cta: 'Book a Discovery Call', link: LINKS.booksReview }
+};
+
+const QUESTIONS = {
+  step1: {
+    id: 'situation', type: 'single', final: false,
+    text: "What's your current situation?",
+    hint: null,
+    opts: [
+      { v: 'qbo',      l: 'I do my own bookkeeping in QuickBooks Online' },
+      { v: 'nonqbo',   l: 'I do my own bookkeeping but not in QuickBooks (spreadsheets, paper, nothing consistent)' },
+      { v: 'unhappy',  l: "I have a bookkeeper but I'm not happy with the service" },
+      { v: 'mess',     l: 'My books are a mess and I need someone to take over' },
+      { v: 'starting', l: "I'm just starting out and setting things up for the first time" }
+    ]
+  },
+  step2: {
+    id: 'approach', type: 'single', final: false,
+    text: 'How do you want to handle bookkeeping going forward?',
+    hint: null,
+    opts: [
+      { v: 'dfy',     l: 'I want someone to just do it for me every month' },
+      { v: 'diy',     l: 'I want to learn how to do it myself / keep doing it myself' },
+      { v: 'notsure', l: "I'm not sure yet — I just need to know if I'm doing it right" }
+    ]
+  },
+  step2b: {
+    id: 'budget', type: 'single', final: true,
+    text: 'Last one — what\'s your monthly budget for bookkeeping support?',
+    hint: null,
+    opts: [
+      { v: 'under375',   l: 'Under $375/month' },
+      { v: '375to1500',  l: '$375–$1,500/month' },
+      { v: '1500to3000', l: '$1,500–$3,000/month' },
+      { v: 'notsure',    l: "I'm not sure yet — I just want to see what fits" }
+    ]
+  },
+  step3a: {
+    id: 'complexity', type: 'multi', final: false,
+    text: 'What does your business look like right now?',
+    hint: 'Pick all that apply',
+    opts: [
+      { v: 'solo',        l: "I'm a solo owner with no employees" },
+      { v: 'payroll',     l: 'I have employees or run payroll' },
+      { v: 'multistate',  l: 'I sell in multiple states or collect sales tax in more than one state' },
+      { v: 'invoicing',   l: 'I need help with invoicing or paying bills' },
+      { v: 'multientity', l: 'I own or operate more than one business entity (e.g. two LLCs, an LLC and an S-Corp)' },
+      { v: 'strategy',    l: 'I want to track specific KPIs or need more than standard monthly reports' }
+    ]
+  },
+  step3b: {
+    id: 'diytype', type: 'single', final: true,
+    text: 'What kind of support are you looking for?',
+    hint: null,
+    opts: [
+      { v: 'quickq',   l: 'I have one specific question I need answered right now' },
+      { v: 'session',  l: 'I need a focused session to work through something in my QuickBooks' },
+      { v: 'ongoing',  l: 'I want ongoing resources, training videos, templates, and a community to learn from' }
+    ]
+  },
+  step3c: {
+    id: 'notsurewhy', type: 'multi', final: true,
+    text: "What's driving that question?",
+    hint: 'Pick all that apply',
+    opts: [
+      { v: 'cpaprep',    l: "I'm preparing to talk to my CPA or make a big financial decision" },
+      { v: 'confidence', l: "I'm not confident my categories or chart of accounts are set up correctly" },
+      { v: 'opinion',    l: 'I just want a professional second opinion on my books' },
+      { v: 'handoff',    l: "I'm thinking about handing off my books and want to understand where things stand first" }
+    ]
+  }
+};
+
+const STEP_PROGRESS = {
+  step1:  [1, 3],
+  step2:  [2, 3],
+  step3a: [3, 4],
+  step2b: [4, 4],
+  step3b: [3, 3],
+  step3c: [3, 3]
+};
+
+let state = { step: 'step1', answers: {}, path: null };
+let selected = [];
+
+function setProgress(stepKey) {
+  const [cur, total] = STEP_PROGRESS[stepKey] || [1, 3];
+  document.getElementById('prog-label').textContent = `Step ${cur} of ${total}`;
+  document.getElementById('prog-fill').style.width = `${Math.round((cur / total) * 100)}%`;
+}
+
+function renderStep(stepKey) {
+  state.step = stepKey;
+  selected = [];
+  const q = QUESTIONS[stepKey];
+  const isMulti = q.type === 'multi';
+  setProgress(stepKey);
+
+  const btnLabel = q.final ? 'See My Recommendation →' : 'Continue →';
+
+  const optsHtml = q.opts.map(o => {
+    if (isMulti) {
+      return `<div class="option" data-v="${o.v}" onclick="toggleOpt(this,'${o.v}')">
+        <div class="indicator chk"><span class="indicator-check">✓</span></div>
+        <span class="option-text">${o.l}</span>
+      </div>`;
+    }
+    return `<div class="option" data-v="${o.v}" onclick="pickOpt(this,'${o.v}')">
+      <div class="indicator"><div class="indicator-dot"></div></div>
+      <span class="option-text">${o.l}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('card').innerHTML = `
+    <div class="question-text">${q.text}</div>
+    ${q.hint ? `<div class="question-hint">${q.hint}</div>` : '<div class="question-gap"></div>'}
+    <div class="options">${optsHtml}</div>
+    <button class="btn-primary" id="next-btn" onclick="advance()" disabled>${btnLabel}</button>
+  `;
+}
+
+function pickOpt(el, v) {
+  document.querySelectorAll('#card .option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selected = [v];
+  document.getElementById('next-btn').disabled = false;
+}
+
+function toggleOpt(el, v) {
+  el.classList.toggle('selected');
+  selected = el.classList.contains('selected')
+    ? [...selected, v]
+    : selected.filter(x => x !== v);
+  document.getElementById('next-btn').disabled = selected.length === 0;
+}
+
+function advance() {
+  const q = QUESTIONS[state.step];
+  state.answers[q.id] = q.type === 'single' ? selected[0] : [...selected];
+
+  if (state.step === 'step1') { renderStep('step2'); return; }
+  if (state.step === 'step2') {
+    state.path = state.answers.approach;
+    if (state.path === 'dfy')     { renderStep('step3a'); return; }
+    if (state.path === 'diy')     { renderStep('step3b'); return; }
+    if (state.path === 'notsure') { renderStep('step3c'); return; }
+  }
+  if (state.step === 'step3a') { renderStep('step2b'); return; }
+  if (state.step === 'step2b') {
+    if (state.answers.budget === 'under375') { showBudgetRedirect(); return; }
+    showResults(); return;
+  }
+  showResults();
+}
+
+function calcRecommendation() {
+  const { path, answers } = state;
+  const budget     = answers.budget || '';
+  const complexity = answers.complexity || [];
+  const diytype    = answers.diytype || '';
+  const notsurewhy = answers.notsurewhy || [];
+
+  if (path === 'diy') {
+    if (diytype === 'quickq')   return { svc: 'quickQuestion' };
+    if (diytype === 'session')  return { svc: 'trainingSession' };
+    return { svc: 'ledgerLounge' };
+  }
+
+  if (path === 'notsure') {
+    const wantsHandoff = notsurewhy.includes('handoff');
+    return { svc: 'booksReview', handoff: wantsHandoff, showLLBO: !wantsHandoff };
+  }
+
+  // DFY path — complexity determines what they need, budget confirms or flags a gap
+  const hasPayroll     = complexity.includes('payroll');
+  const hasMultistate  = complexity.includes('multistate');
+  const hasMultientity = complexity.includes('multientity');
+  const hasStrategy    = complexity.includes('strategy');
+  const hasInvoicing   = complexity.includes('invoicing');
+
+  // Step 1: determine the right tier based on what their business actually needs
+  let neededTier;
+  if ((hasPayroll && hasMultistate && hasMultientity) || hasMultistate || hasMultientity || hasInvoicing) {
+    neededTier = 'premium';
+  } else if (hasPayroll || hasStrategy) {
+    neededTier = 'standard';
+  } else {
+    neededTier = 'essentials';
+  }
+
+  // Step 2: check budget — note any gap, but don't override the complexity-based recommendation
+  if (budget === 'notsure') {
+    return { svc: neededTier, budgetNote: true };
+  }
+  if (budget === '375to1500') {
+    // Essentials ($375) fits cleanly; Standard ($1,275) is at the top of this range
+    const gap = neededTier === 'premium';
+    return { svc: neededTier, budgetNote: gap };
+  }
+  if (budget === '1500to3000') {
+    // Standard ($1,275) and Premium ($2,500) both fit here
+    return { svc: neededTier, budgetNote: false };
+  }
+  return { svc: neededTier, budgetNote: false };
+}
+
+function buildWhy(svc, rec) {
+  const { answers } = state;
+  const complexity  = answers.complexity  || [];
+  const notsurewhy  = answers.notsurewhy  || [];
+  const situation   = answers.situation   || '';
+  const budget      = answers.budget      || '';
+
+  const complexLabels = {
+    payroll:     'payroll',
+    multistate:  'multi-state or sales tax obligations',
+    invoicing:   'invoicing and bill pay',
+    multientity: 'multiple business entities',
+    strategy:    'regular strategy and reporting'
+  };
+  const complexList = complexity
+    .filter(c => c !== 'solo' && complexLabels[c])
+    .map(c => complexLabels[c]);
+
+  switch (svc) {
+    case 'essentials': {
+      let w = 'You want clean books without having to think about them — and based on what you shared, your setup is straightforward enough that Essentials is a solid fit. ';
+      if (complexity.includes('solo')) {
+        w += 'As a solo owner, you get reliable monthly bookkeeping plus regular check-ins so you always know where things stand — organized, tax-season-ready, and never left guessing.';
+      } else {
+        w += 'You get monthly bookkeeping handled for you plus regular check-ins to keep you in the loop, so you can stay focused on actually running your business.';
+      }
+      if (rec.budgetNote) w += ' Since you weren\'t sure on budget yet, a discovery call can walk you through the details before you commit to anything.';
+      return w;
+    }
+    case 'standard': {
+      let w = 'Your business has real complexity';
+      if (complexList.length) w += ` — ${complexList.join(', ')} —`;
+      w += ' and that calls for more than just basic bookkeeping. Standard gives you fully managed monthly books plus the reporting and strategic support to actually understand your numbers and make decisions from them.';
+      if (rec.budgetNote) w += ' Since you weren\'t sure about budget yet, a discovery call is the perfect next step to walk through exactly what this includes and what the investment looks like for your situation.';
+      return w;
+    }
+    case 'premium': {
+      let w = 'Based on what you shared, your business has serious complexity';
+      const premiumParts = [];
+      if (complexity.includes('multistate'))  premiumParts.push('multi-state or sales tax obligations');
+      if (complexity.includes('multientity')) premiumParts.push('multiple business entities');
+      if (complexity.includes('invoicing'))   premiumParts.push('invoicing and bill pay needs');
+      if (complexity.includes('payroll'))     premiumParts.push('payroll');
+      if (premiumParts.length) w += ` — ${premiumParts.join(', ')}.`;
+      else w += '.';
+      w += ' Premium is built for exactly that. You get full-service bookkeeping with the depth and strategy to match what your business actually demands — not a one-size-fits-all package.';
+      if (rec.budgetNote) w += " Let's get on a discovery call to confirm scope and walk through what this looks like for your specific setup.";
+      return w;
+    }
+    case 'quickQuestion':
+      return "You've got something specific you need clarity on — and you don't need a long engagement to get there. A Quick Question gets you a direct, practical answer from someone who actually knows bookkeeping, without the overhead of a bigger commitment.";
+    case 'trainingSession':
+      return "You've got something specific in your QuickBooks that needs hands-on attention, and a Training/Support Session gives you focused, one-on-one time to work through it. Not just an explanation of what to do — real help doing it, so you leave with actual progress.";
+    case 'ledgerLounge':
+      return "You're committed to doing your own books and you want the tools to do it right. Ledger Lounge Back Office gives you training videos, templates, live Q&As, and a community of other business owners doing the same thing — for less than $50 a month. Everything you need to stay on top of it without going it completely alone.";
+    case 'booksReview': {
+      let w = "You're not quite sure what you need yet — and that's a completely reasonable place to be. A Books Review &amp; Deep Dive Analysis gets a professional set of eyes on your books so you know exactly what's right, what needs fixing, and what your smartest next move is.";
+      const reasons = [];
+      if (notsurewhy.includes('cpaprep'))    reasons.push('preparing for a CPA conversation or a big financial decision');
+      if (notsurewhy.includes('confidence')) reasons.push('not feeling confident in how things are categorized');
+      if (notsurewhy.includes('opinion'))    reasons.push('wanting a professional second opinion');
+      if (reasons.length) w += ` Whether you're ${reasons.join(', or ')}, this gives you answers you can actually act on.`;
+      return w;
+    }
+    default: return '';
+  }
+}
+
+function showBudgetRedirect() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results-card').innerHTML = `
+    <div class="rec-eyebrow">Here's what we recommend:</div>
+    <div class="question-text" style="font-family:'Playfair Display',serif; margin-bottom:18px; font-size:clamp(1.1rem,3vw,1.35rem);">
+      Based on your budget, the done-for-you packages aren't the right fit right now — but that doesn't mean you're on your own.
+    </div>
+    <div class="redirect-intro">
+      Here are the options built for exactly where you are. Pick what fits your need right now.
+    </div>
+    <div class="diy-grid">
+      <div class="diy-card">
+        <div class="diy-name">Quick Question</div>
+        <div class="diy-price">$50</div>
+        <div class="diy-desc">You've got something specific you need answered. Submit your question and get a direct, practical answer — no fluff, no long commitment required.</div>
+        <a href="${LINKS.quickQuestion}" target="_blank" rel="noopener" class="btn-primary">Book Your Quick Question →</a>
+      </div>
+      <div class="diy-card">
+        <div class="diy-name">Training / Support Session</div>
+        <div class="diy-price">$150</div>
+        <div class="diy-desc">Need to work through something hands-on in QuickBooks? A focused, one-on-one session to tackle a specific issue so you leave with real progress, not just a to-do list.</div>
+        <a href="${LINKS.trainingSession}" target="_blank" rel="noopener" class="btn-primary">Schedule a Session →</a>
+      </div>
+      <div class="diy-card">
+        <div class="diy-name">Ledger Lounge Back Office</div>
+        <div class="diy-price">$47/month</div>
+        <div class="diy-desc">Training videos, templates, live Q&amp;As, and a community of business owners doing their own books — all for less than $50 a month. The place to learn how to do this right.</div>
+        <a href="${LINKS.ledgerLounge}" target="_blank" rel="noopener" class="btn-primary">Join the Community →</a>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="results-footer">
+      <p class="discovery-text">Still not sure? <a href="${LINKS.booksReview}" target="_blank" rel="noopener">Schedule a free discovery call</a></p>
+      <button class="start-over-btn" onclick="startOver()">← Start over</button>
+    </div>
+  `;
+}
+
+function showResults() {
+  const rec  = calcRecommendation();
+  const svc  = rec.svc;
+  const info = SVC[svc];
+  const why  = buildWhy(svc, rec);
+
+  let noteHtml      = '';
+  let secondaryHtml = '';
+
+  if (svc === 'booksReview') {
+    if (rec.handoff) {
+      noteHtml = `<div class="note-box">A Books Review is a natural first step toward Done-For-You services — it gives you (and us) a clear picture of where your books stand before making any transition. Many clients use it as the bridge to ongoing support.</div>`;
+    }
+    if (rec.showLLBO) {
+      secondaryHtml = `
+        <div class="divider"></div>
+        <div class="secondary-wrap">
+          <div class="secondary-label">You might also consider</div>
+          <div class="secondary-name">Ledger Lounge Back Office</div>
+          <div class="secondary-price">$47/month</div>
+          <div class="secondary-why">If you plan to keep managing your own books after the review, Ledger Lounge gives you the ongoing training, templates, and community to keep doing it well — for less than $50 a month.</div>
+          <a href="${LINKS.ledgerLounge}" target="_blank" rel="noopener" class="btn-outline">Learn More →</a>
+        </div>`;
+    }
+  }
+
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results-card').innerHTML = `
+    <div class="rec-eyebrow">Here's what we recommend:</div>
+    <div class="rec-name">${info.name}</div>
+    <div class="rec-price">${info.price}</div>
+    <div class="rec-why">${why}</div>
+    <a href="${info.link}" target="_blank" rel="noopener" class="btn-primary">${info.cta} →</a>
+    ${noteHtml}
+    ${secondaryHtml}
+    <div class="divider"></div>
+    <div class="results-footer">
+      <p class="discovery-text">Still not sure? <a href="${LINKS.booksReview}" target="_blank" rel="noopener">Schedule a free discovery call</a></p>
+      <button class="start-over-btn" onclick="startOver()">← Start over</button>
+    </div>
+  `;
+}
+
+function startOver() {
+  state = { step: 'step1', answers: {}, path: null };
+  selected = [];
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  renderStep('step1');
+}
+
+renderStep('step1');
+</script>
+</body>
+</html>
