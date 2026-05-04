@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Books Health Check — Two Cents Accounting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:              #F5F0E8;
+  --surface:         #FDFAF5;
+  --border:          #DDD5C4;
+  --text:            #2C2416;
+  --text-secondary:  #5C4A30;
+  --text-muted:      #8A7A62;
+  --orange:          #E8622A;
+  --orange-dark:     #C94E1D;
+  --orange-light:    #F28054;
+  --green:           #3A7D44;
+  --green-bg:        #EBF5ED;
+  --yellow:          #B8860B;
+  --yellow-bg:       #FEF9E7;
+  --red:             #C0392B;
+  --red-bg:          #FDEDEC;
+  --shadow:          0 2px 16px rgba(44, 36, 22, 0.09);
+  --shadow-lg:       0 8px 40px rgba(44, 36, 22, 0.13);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:              #1A1410;
+    --surface:         #241E16;
+    --border:          #3A3020;
+    --text:            #F0E8D8;
+    --text-secondary:  #C4B49A;
+    --text-muted:      #7A6A52;
+    --orange:          #F07040;
+    --orange-dark:     #D45A28;
+    --orange-light:    #F59070;
+    --green:           #4CAF6A;
+    --green-bg:        #0F2214;
+    --yellow:          #D4A017;
+    --yellow-bg:       #1E1A06;
+    --red:             #E05545;
+    --red-bg:          #200C08;
+    --shadow:          0 2px 16px rgba(0, 0, 0, 0.45);
+    --shadow-lg:       0 8px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* ── Header ── */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header img {
+  height: 48px;
+  width: auto;
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .site-header img { filter: brightness(0) invert(1); }
+}
+
+/* ── Main Layout ── */
+main {
+  flex: 1;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.hero h1 span { color: var(--orange); }
+
+.hero p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── Step Indicator ── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+  gap: 0;
+}
+
+.step-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  cursor: default;
+}
+
+.step-tab:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.step-tab.completed:not(:last-child)::after { background: var(--green); }
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.step-tab.active .step-circle {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+
+.step-tab.completed .step-circle {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.step-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  transition: color 0.3s;
+  text-align: center;
+}
+
+.step-tab.active .step-label { color: var(--orange); }
+.step-tab.completed .step-label { color: var(--green); }
+
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.card .step-meta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+
+.card p {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+/* ── YouTube Embed ── */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.video-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+.video-wrapper:hover .video-thumbnail { opacity: 0.85; }
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 68px;
+  background: rgba(232, 98, 42, 0.92);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+  pointer-events: none;
+}
+
+.video-wrapper:hover .play-btn {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: var(--orange);
+}
+
+.play-btn svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+  margin-left: 4px;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: 0;
+}
+
+.video-caption {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Export Steps ── */
+.export-steps {
+  counter-reset: step-counter;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.export-steps li {
+  counter-increment: step-counter;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.export-steps li::before {
+  content: counter(step-counter);
+  min-width: 28px;
+  height: 28px;
+  background: var(--orange);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.export-steps li span {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  padding-top: 3px;
+}
+
+.export-steps li strong { color: var(--text); }
+
+/* ── Entity Pills ── */
+.entity-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.entity-pill {
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+
+.entity-pill:hover {
+  border-color: var(--orange-light);
+  color: var(--orange);
+}
+
+.entity-pill.selected {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(232, 98, 42, 0.10);
+}
+
+/* ── Paste Area ── */
+.paste-area {
+  width: 100%;
+  min-height: 180px;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  resize: vertical;
+  transition: border-color 0.2s;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.paste-area:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+.paste-area::placeholder { color: var(--text-muted); }
+
+/* ── Buttons ── */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary:hover {
+  background: var(--orange-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+.btn-nav {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.btn-nav:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  gap: 12px;
+}
+
+.nav-row-right { margin-left: auto; }
+
+/* ── Score Hero ── */
+.score-hero {
+  text-align: center;
+  padding: 40px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 32px;
+}
+
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 12vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.score-number.green { color: var(--green); }
+.score-number.yellow { color: var(--yellow); }
+.score-number.red { color: var(--red); }
+
+.score-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.score-label.green { color: var(--green); }
+.score-label.yellow { color: var(--yellow); }
+.score-label.red { color: var(--red); }
+
+.score-sub {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.score-bar-track {
+  width: 100%;
+  max-width: 300px;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  margin: 20px auto 0;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.score-bar-fill.green { background: var(--green); }
+.score-bar-fill.yellow { background: var(--yellow); }
+.score-bar-fill.red { background: var(--red); }
+
+/* ── Findings ── */
+.findings-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.finding-card {
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.finding-card.critical { border-left: 4px solid var(--red); }
+.finding-card.warning  { border-left: 4px solid var(--yellow); }
+.finding-card.pass     { border-left: 4px solid var(--green); }
+
+.finding-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.finding-body { flex: 1; }
+
+.finding-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.finding-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.badge.critical { background: var(--red-bg); color: var(--red); }
+.badge.warning  { background: var(--yellow-bg); color: var(--yellow); }
+.badge.pass     { background: var(--green-bg); color: var(--green); }
+
+.finding-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ── CTA Card ── */
+.cta-card {
+  background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+  border-radius: 16px;
+  padding: 40px 36px;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-lg);
+}
+
+.cta-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.cta-card p {
+  color: rgba(255,255,255,0.88);
+  font-size: 0.95rem;
+  margin-bottom: 28px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-cta-primary {
+  background: #fff;
+  color: var(--orange-dark);
+  border: none;
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.btn-cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+}
+
+.btn-cta-secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 8px;
+  padding: 12px 26px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btn-cta-secondary:hover {
+  border-color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+
+.start-over-row {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.start-over-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.start-over-link:hover { color: var(--text-secondary); }
+
+/* ── Footer ── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+footer .footer-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+footer a {
+  color: var(--orange);
+  text-decoration: none;
+}
+
+footer a:hover { text-decoration: underline; }
+
+footer .disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 10px auto 0;
+  line-height: 1.5;
+}
+
+/* ── Utility ── */
+.hidden { display: none !important; }
+
+.error-msg {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+  .card { padding: 24px 18px; }
+  .cta-card { padding: 30px 20px; }
+  .entity-grid { gap: 8px; }
+  .entity-pill { padding: 8px 14px; font-size: 0.82rem; }
+  .step-label { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="site-header">
+  <img src="IMG_4951.PNG" alt="Two Cents Accounting" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+  <span style="display:none;font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--text)">Two Cents Accounting</span>
+</header>
+
+<!-- ── Main ── -->
+<main>
+  <div class="hero">
+    <h1>QBO Books <span>Health Check</span></h1>
+    <p>Paste your Trial Balance and find out what's lurking in your books — in under a minute, right here in your browser.</p>
+  </div>
+
+  <!-- Step Indicator -->
+  <nav class="step-indicator" id="stepIndicator" aria-label="Progress">
+    <div class="step-tab active" id="tab-1">
+      <div class="step-circle">1</div>
+      <span class="step-label">Watch</span>
+    </div>
+    <div class="step-tab" id="tab-2">
+      <div class="step-circle">2</div>
+      <span class="step-label">Export</span>
+    </div>
+    <div class="step-tab" id="tab-3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Entity</span>
+    </div>
+    <div class="step-tab" id="tab-4">
+      <div class="step-circle">4</div>
+      <span class="step-label">Analyze</span>
+    </div>
+  </nav>
+
+  <!-- ── Step 1: Video ── -->
+  <div id="step-1">
+    <div class="card">
+      <p class="step-meta">Step 1 of 4</p>
+      <h2>See How to Export Your Trial Balance</h2>
+      <p>Watch this quick walkthrough, then follow the instructions in Step 2 to grab your data from QuickBooks Online.</p>
+
+      <div class="video-wrapper" id="videoWrapper" role="button" tabindex="0" aria-label="Play video tutorial">
+        <img class="video-thumbnail" src="https://img.youtube.com/vi/RqBKkbPbVds/maxresdefault.jpg" alt="How to export Trial Balance from QuickBooks Online">
+        <div class="play-btn" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+      <p class="video-caption">Replace this video ID in the HTML with your own walkthrough.</p>
+    </div>
+
+    <div class="nav-row">
+      <div></div>
+      <button class="btn-primary nav-row-right" onclick="goToStep(2)">Next: Export Instructions →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 2: Export Instructions ── -->
+  <div id="step-2" class="hidden">
+    <div class="card">
+      <p class="step-meta">Step 2 of 4</p>
+      <h2>Export Your Trial Balance from QBO</h2>
+      <p>Follow these steps inside QuickBooks Online to get your data ready to paste:</p>
+
+      <ol class="export-steps">
+        <li><span>Log in to <strong>QuickBooks Online</strong> and click <strong>Reports</strong> in the left sidebar.</span></li>
+        <li><span>In the search box, type <strong>"Trial Balance"</strong> and click the report when it appears.</span></li>
+        <li><span>Set your <strong>date range</strong> — typically the most recent full month or your current fiscal year to date.</span></li>
+        <li><span>Click <strong>Run Report</strong> to generate the data.</span></li>
+        <li><span>Click the <strong>Export</strong> icon (top right of the report) and choose <strong>Export to Excel</strong>.</span></li>
+        <li><span>Open the downloaded <strong>.xlsx file</strong> in Excel, Numbers, or Google Sheets.</span></li>
+        <li><span>Press <strong>Ctrl+A</strong> (or Cmd+A on Mac) to select all cells, then <strong>Ctrl+C</strong> (Cmd+C) to copy.</span></li>
+        <li><span>Head to <strong>Step 4</strong> and paste the data into the text area.</span></li>
+      </ol>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-nav" onclick="goToStep(1)">← Back</button>
+      <button class="btn-primary" onclick="goToStep(3)">Next: Select Entity →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 3: Entity Selector ── -->
+  <div id="step-3" class="hidden">
+    <div class="card">
+      <p class="step-meta">Step 3 of 4</p>
+      <h2>What Type of Business Entity Are You?</h2>
+      <p>Selecting your entity type enables additional checks tailored to your structure — like S-Corp officer compensation or nonprofit net asset rules.</p>
+
+      <div class="entity-grid" id="entityGrid" role="radiogroup" aria-label="Business entity type">
+        <button class="entity-pill" data-entity="sole-prop" role="radio" aria-checked="false" onclick="selectEntity(this)">Sole Proprietor</button>
+        <button class="entity-pill" data-entity="s-corp" role="radio" aria-checked="false" onclick="selectEntity(this)">S-Corp</button>
+        <button class="entity-pill" data-entity="c-corp" role="radio" aria-checked="false" onclick="selectEntity(this)">C-Corp</button>
+        <button class="entity-pill" data-entity="partnership" role="radio" aria-checked="false" onclick="selectEntity(this)">Partnership / LLC</button>
+        <button class="entity-pill" data-entity="nonprofit" role="radio" aria-checked="false" onclick="selectEntity(this)">Nonprofit</button>
+        <button class="entity-pill selected" data-entity="not-sure" role="radio" aria-checked="true" onclick="selectEntity(this)">Not Sure</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-nav" onclick="goToStep(2)">← Back</button>
+      <button class="btn-primary" onclick="goToStep(4)">Next: Paste Data →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 4: Paste & Analyze ── -->
+  <div id="step-4" class="hidden">
+    <div class="card">
+      <p class="step-meta">Step 4 of 4</p>
+      <h2>Paste Your Trial Balance Data</h2>
+      <p>Copy your Trial Balance from Excel (Ctrl+A → Ctrl+C) and paste it below. All analysis happens right here in your browser — nothing is sent anywhere.</p>
+
+      <div id="pasteError" class="error-msg hidden">Please paste your Trial Balance data before running the check.</div>
+
+      <textarea
+        id="trialBalancePaste"
+        class="paste-area"
+        placeholder="Paste your Trial Balance data here (from Excel, Google Sheets, or QBO export)…"
+        aria-label="Trial Balance data paste area"
+      ></textarea>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="runHealthCheck()">Run Health Check</button>
+        <button class="btn-secondary" onclick="loadSampleData()">Try sample data</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-nav" onclick="goToStep(3)">← Back</button>
+    </div>
+  </div>
+
+  <!-- ── Results ── -->
+  <div id="results" class="hidden">
+    <!-- Score Hero -->
+    <div class="score-hero">
+      <div class="score-number" id="scoreNumber">—</div>
+      <div class="score-label" id="scoreLabel">Analyzing…</div>
+      <div class="score-sub" id="scoreSub"></div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Findings -->
+    <div class="findings-section" id="findingsSection"></div>
+
+    <!-- CTA Card -->
+    <div class="cta-card">
+      <h2>Ready to clean this up?</h2>
+      <p>Join our free community for bookkeeping tips, templates, and direct access to the team at Two Cents Accounting — or book a conversation to go deeper on what we found.</p>
+      <div class="cta-buttons">
+        <a class="btn-cta-primary" href="https://bit.ly/4vVMh0q" target="_blank" rel="noopener noreferrer">Join Ledger Lounge — Free Community</a>
+        <a class="btn-cta-secondary" href="https://twocentsaccounting.com" target="_blank" rel="noopener noreferrer">Schedule a Conversation</a>
+      </div>
+    </div>
+
+    <div class="start-over-row">
+      <button class="start-over-link" onclick="startOver()">↺ Start Over</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-brand">Two Cents Accounting</div>
+  <div><a href="https://twocentsaccounting.com" target="_blank" rel="noopener noreferrer">twocentsaccounting.com</a></div>
+  <p class="disclaimer">This tool is for educational purposes only and is not a substitute for professional accounting or tax advice. No data is transmitted — all analysis runs in your browser.</p>
+</footer>
+
+<script>
+// ── State ──
+var currentStep = 1;
+var selectedEntity = 'not-sure';
+
+// ── Navigation ──
+function goToStep(n) {
+  var prev = document.getElementById('step-' + currentStep);
+  var next = document.getElementById('step-' + n);
+  if (!next) return;
+  if (prev) prev.classList.add('hidden');
+  next.classList.remove('hidden');
+
+  // Hide results when navigating to any step
+  document.getElementById('results').classList.add('hidden');
+
+  currentStep = n;
+  updateStepIndicator(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepIndicator(active) {
+  for (var i = 1; i <= 4; i++) {
+    var tab = document.getElementById('tab-' + i);
+    tab.classList.remove('active', 'completed');
+    if (i < active) tab.classList.add('completed');
+    else if (i === active) tab.classList.add('active');
+  }
+}
+
+// ── Video ──
+document.getElementById('videoWrapper').addEventListener('click', function() {
+  var wrapper = this;
+  wrapper.innerHTML = '<iframe src="https://www.youtube.com/embed/RqBKkbPbVds?autoplay=1" title="QBO Trial Balance Export Tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+});
+
+document.getElementById('videoWrapper').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    this.click();
+  }
+});
+
+// ── Entity ──
+function selectEntity(el) {
+  var pills = document.querySelectorAll('.entity-pill');
+  pills.forEach(function(p) {
+    p.classList.remove('selected');
+    p.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  selectedEntity = el.dataset.entity;
+}
+
+// ── Sample Data ──
+function loadSampleData() {
+  var sample = [
+    "Two Cents Accounting Client\tTrial Balance\tAs of December 31, 2024",
+    "Account\tDebit\tCredit",
+    "Checking Account\t12450.00\t",
+    "Savings Account\t8200.00\t",
+    "Petty Cash\t(150.00)\t",
+    "Accounts Receivable\t14000.00\t",
+    "Undeposited Funds\t2300.00\t",
+    "Equipment\t25000.00\t",
+    "Furniture & Fixtures\t8000.00\t",
+    "Accounts Payable\t\t6800.00",
+    "Credit Card Payable\t\t3200.00",
+    "Opening Balance Equity\t\t500.00",
+    "Owner's Capital\t\t40000.00",
+    "Owner's Draws\t55000.00\t",
+    "Ask My Accountant\t1200.00\t",
+    "Service Revenue\t\t120000.00",
+    "Product Sales\t\t30000.00",
+    "Cost of Goods Sold\t45000.00\t",
+    "Rent Expense\t18000.00\t",
+    "Utilities\t3000.00\t",
+    "Insurance\t2400.00\t",
+    "Advertising\t5000.00\t",
+    "Office Supplies\t1000.00\t",
+    "Meals & Entertainment\t2000.00\t",
+    "Professional Fees\t6000.00\t",
+    "Miscellaneous Expense\t1000.00\t",
+    "Total\t\t"
+  ].join('\n');
+
+  document.getElementById('trialBalancePaste').value = sample;
+  document.getElementById('pasteError').classList.add('hidden');
+}
+
+// ── Parsing ──
+var SKIP_PATTERNS = /^(account|trial balance|total|net income|date|basis|company|as of|report)/i;
+
+function parseTrialBalance(raw) {
+  var lines = raw.split('\n');
+  var accounts = [];
+
+  lines.forEach(function(line) {
+    line = line.trim();
+    if (!line) return;
+
+    var cells = line.indexOf('\t') >= 0 ? line.split('\t') : line.split(',');
+    if (cells.length < 2) return;
+
+    var nameCell = cells[0].trim().replace(/^"|"$/g, '');
+    if (!nameCell || SKIP_PATTERNS.test(nameCell)) return;
+
+    var balance = null;
+    for (var i = cells.length - 1; i >= 1; i--) {
+      var raw_val = cells[i].trim().replace(/^"|"$/g, '').replace(/[$,\s]/g, '');
+      if (!raw_val) continue;
+      var negative = raw_val.match(/^\((.+)\)$/);
+      if (negative) raw_val = '-' + negative[1];
+      var num = parseFloat(raw_val);
+      if (!isNaN(num)) {
+        balance = num;
+        break;
+      }
+    }
+
+    if (balance === null) return;
+    accounts.push({ name: nameCell, balance: balance });
+  });
+
+  return accounts;
+}
+
+// ── Check helpers ──
+function nameLower(acc) { return acc.name.toLowerCase(); }
+
+function hasMatch(accounts, regex) {
+  return accounts.some(function(a) { return regex.test(nameLower(a)); });
+}
+
+function matchAccounts(accounts, regex) {
+  return accounts.filter(function(a) { return regex.test(nameLower(a)); });
+}
+
+function nonZero(accounts) {
+  return accounts.filter(function(a) { return Math.abs(a.balance) > 0.01; });
+}
+
+function totalOf(accounts, regex) {
+  return matchAccounts(accounts, regex).reduce(function(s, a) { return s + a.balance; }, 0);
+}
+
+// ── Health Checks ──
+function runChecks(accounts, entity) {
+  var findings = [];
+
+  function addFinding(type, title, desc) {
+    findings.push({ type: type, title: title, desc: desc });
+  }
+
+  // 1. Uncategorized / Ask My Accountant
+  var uncatAccounts = matchAccounts(accounts, /uncategorized|ask my accountant/i).filter(function(a) { return Math.abs(a.balance) > 0.01; });
+  if (uncatAccounts.length > 0) {
+    addFinding('warning', 'Uncategorized or "Ask My Accountant" Accounts', 'You have ' + uncatAccounts.length + ' account(s) with uncategorized transactions totaling $' + Math.abs(uncatAccounts.reduce(function(s,a){return s+a.balance;},0)).toFixed(2) + '. These should be reclassified before filing — your tax preparer can\'t work with placeholder categories.');
+  } else {
+    addFinding('pass', 'No Uncategorized Transactions Found', 'All accounts appear to have proper categorization. No "Uncategorized" or "Ask My Accountant" balances detected.');
+  }
+
+  // 2. Opening Balance Equity
+  var obeAccounts = matchAccounts(accounts, /opening balance equity/i);
+  var obeBalance = obeAccounts.reduce(function(s,a){return s+a.balance;},0);
+  if (Math.abs(obeBalance) > 0.01) {
+    addFinding('critical', 'Opening Balance Equity Not Cleared', 'Opening Balance Equity has a balance of $' + Math.abs(obeBalance).toFixed(2) + '. This account should always net to zero — a remaining balance usually means setup transactions were never properly assigned to the right equity accounts. This can distort your balance sheet significantly.');
+  } else {
+    addFinding('pass', 'Opening Balance Equity Cleared', 'Opening Balance Equity nets to zero, which means your initial setup transactions were properly handled.');
+  }
+
+  // 3. Negative cash
+  var cashAccounts = matchAccounts(accounts, /checking|savings|petty cash|bank/i).filter(function(a) { return a.balance < 0; });
+  if (cashAccounts.length > 0) {
+    addFinding('critical', 'Negative Cash Balance', cashAccounts.length + ' cash account(s) show a negative balance: ' + cashAccounts.map(function(a){return '"' + a.name + '" ($' + a.balance.toFixed(2) + ')';}).join(', ') + '. This typically indicates unrecorded deposits, duplicate expenses, or transactions recorded in the wrong account.');
+  } else {
+    addFinding('pass', 'Cash Balances Are Positive', 'All checking, savings, and cash accounts show positive balances — no obvious overdraft or recording errors detected.');
+  }
+
+  // 4. Undeposited Funds > $500
+  var udfBalance = totalOf(accounts, /undeposited funds/i);
+  if (udfBalance > 500) {
+    addFinding('warning', 'High Undeposited Funds Balance', 'Undeposited Funds shows $' + udfBalance.toFixed(2) + '. Amounts sitting here represent payments received but not yet moved to a bank account in QBO. A large balance usually means bank deposits were never matched to their corresponding payments, overstating your receivables.');
+  } else {
+    addFinding('pass', 'Undeposited Funds Under Control', 'Undeposited Funds balance is $' + udfBalance.toFixed(2) + ', which is within a normal range. Payments appear to be deposited and matched promptly.');
+  }
+
+  // 5. Fixed assets with no depreciation
+  var fixedAssets = matchAccounts(accounts, /equipment|furniture|vehicle|machinery|leasehold|building/i).filter(function(a){return a.balance > 0;});
+  var depreciation = matchAccounts(accounts, /accumulated depreciation|accum\. depr|accum depr/i).filter(function(a){return Math.abs(a.balance) > 0;});
+  if (fixedAssets.length > 0 && depreciation.length === 0) {
+    addFinding('warning', 'Fixed Assets With No Accumulated Depreciation', 'You have ' + fixedAssets.length + ' fixed asset account(s) but no accumulated depreciation account. Unless all assets are fully expensed (Section 179 / bonus depreciation), depreciation should appear on your books each year. Missing depreciation overstates your assets and may understate expenses.');
+  } else if (fixedAssets.length > 0) {
+    addFinding('pass', 'Depreciation Accounts Present', 'Fixed assets are paired with accumulated depreciation accounts, which is the correct accounting treatment.');
+  }
+
+  // 6. Round thousands (> 40% of non-zero balances)
+  var nzAccounts = nonZero(accounts);
+  if (nzAccounts.length > 0) {
+    var roundCount = nzAccounts.filter(function(a) { return Math.abs(a.balance) >= 1000 && Math.abs(a.balance) % 1000 === 0; }).length;
+    var roundPct = roundCount / nzAccounts.length;
+    if (roundPct > 0.40) {
+      addFinding('warning', 'Suspiciously Round Account Balances', Math.round(roundPct * 100) + '% of non-zero accounts have balances in exact thousands. A high proportion of round numbers can indicate estimated or manually entered balances rather than actual transaction data. Make sure your books are based on real transactions, not guesses.');
+    } else {
+      addFinding('pass', 'Account Balances Look Transaction-Based', 'Most balances appear to come from real transactions rather than manual estimates. No unusual pattern of round thousands detected.');
+    }
+  }
+
+  // 7. Owner draws > 70% of revenue
+  var totalRevenue = Math.abs(totalOf(accounts, /revenue|sales|income|fees earned|service income/i));
+  var totalDraws = totalOf(accounts, /owner.*draw|draw.*owner|member.*draw|draw.*member|shareholder.*distribution|distribution/i);
+  if (totalRevenue > 0 && (totalDraws / totalRevenue) > 0.70) {
+    addFinding('warning', 'Owner Draws Exceed 70% of Revenue', 'Owner draws or distributions total $' + totalDraws.toFixed(2) + ', which is ' + Math.round((totalDraws/totalRevenue)*100) + '% of total revenue ($' + totalRevenue.toFixed(2) + '). While there\'s no hard rule, this ratio leaves very little for taxes, operating expenses, and reinvestment. It may also raise questions with the IRS in an audit.');
+  } else if (totalRevenue > 0) {
+    addFinding('pass', 'Owner Draws Within Reasonable Range', 'Owner draws or distributions are proportionate to revenue — no red flags on over-distribution relative to income.');
+  }
+
+  // 8. No payroll at > $75k revenue
+  var hasPayroll = hasMatch(accounts, /payroll|wages|salaries|salary|labor/i);
+  if (totalRevenue > 75000 && !hasPayroll) {
+    addFinding('warning', 'No Payroll Accounts at High Revenue', 'Revenue exceeds $75,000 but no payroll, wages, or salary accounts were found. If you have employees (including yourself in some entity types), payroll expenses should appear here. Missing payroll could mean unrecorded expenses, or compensation being run through draws without proper payroll setup.');
+  } else if (hasPayroll) {
+    addFinding('pass', 'Payroll or Labor Accounts Present', 'Payroll or labor-related accounts are present in the books.');
+  }
+
+  // ── Entity-specific checks ──
+
+  // S-Corp
+  if (entity === 's-corp') {
+    var hasOfficerSalary = hasMatch(accounts, /officer.*salary|officer.*compensation|officer.*wage|salary.*officer|compensation.*officer/i);
+    if (!hasOfficerSalary) {
+      addFinding('critical', 'No Officer Salary or Compensation Account Found', 'S-Corp shareholder-employees are required by the IRS to pay themselves a "reasonable compensation" W-2 salary before taking distributions. This is one of the top S-Corp audit triggers. If you are an active owner, you must be on payroll — skipping a salary to avoid payroll taxes is a well-known IRS target. Work with your accountant to document and establish a defensible salary amount.');
+    } else {
+      addFinding('pass', 'Officer Compensation Account Present', 'An officer salary or compensation account was found, which aligns with the IRS reasonable compensation requirement for S-Corp shareholder-employees.');
+    }
+  }
+
+  // C-Corp
+  if (entity === 'c-corp') {
+    var retainedEarnings = totalOf(accounts, /retained earnings/i);
+    var hasDividends = hasMatch(accounts, /dividend/i);
+    if (retainedEarnings > 250000 && !hasDividends) {
+      addFinding('warning', 'High Retained Earnings May Trigger Accumulated Earnings Tax', 'Retained earnings exceed $250,000 and no dividend accounts are present. C-Corporations that accumulate earnings beyond the reasonable needs of the business may be subject to the Accumulated Earnings Tax (AET) — currently 20%. Documenting a business purpose for retained earnings or distributing dividends can help mitigate this risk.');
+    }
+
+    var hasCCorpPayroll = hasMatch(accounts, /payroll|wages|salary|salaries|compensation|bonus/i);
+    if (!hasCCorpPayroll) {
+      addFinding('warning', 'No Payroll or Compensation Accounts in C-Corp', 'C-Corp shareholder-employees are expected to receive reasonable compensation as W-2 wages, which are deductible by the corporation. Absent payroll accounts suggests compensation may not be on the books, which can create both tax and audit issues.');
+    } else {
+      addFinding('pass', 'Compensation or Payroll Accounts Present', 'The books include payroll or compensation accounts, consistent with C-Corp shareholder-employee requirements.');
+    }
+  }
+
+  // Nonprofit
+  if (entity === 'nonprofit') {
+    var hasNetAssets = hasMatch(accounts, /net assets|restricted|unrestricted/i);
+    if (!hasNetAssets) {
+      addFinding('warning', 'No Net Asset Accounts Found', 'Nonprofits are required under ASC 958 (GAAP) to classify net assets into at least two categories: "Net Assets Without Donor Restrictions" and "Net Assets With Donor Restrictions." These accounts were not detected. Without proper net asset classification, your financial statements may not comply with GAAP or grant reporting requirements.');
+    } else {
+      addFinding('pass', 'Net Asset Accounts Present', 'Restricted or unrestricted net asset accounts are present, consistent with ASC 958 / GAAP nonprofit standards.');
+    }
+
+    var totalExpenses = Math.abs(totalOf(accounts, /expense|expenses/i));
+    var adminExpenses = Math.abs(totalOf(accounts, /admin|general|overhead|management|fundrais/i));
+    if (totalExpenses > 0) {
+      var adminPct = adminExpenses / totalExpenses;
+      if (adminPct > 0.35) {
+        addFinding('warning', 'Administrative Overhead Exceeds 35% of Total Expenses', 'Admin and overhead expenses account for ' + Math.round(adminPct * 100) + '% of total expenses. Most grant makers and nonprofit watchdog organizations (Charity Navigator, GuideStar) expect organizations to direct 65–75% or more of spending toward program services. High overhead ratios can affect grant eligibility and donor trust.');
+      } else {
+        addFinding('pass', 'Program Expense Ratio Looks Healthy', 'Administrative and overhead expenses appear to be within acceptable ranges relative to total expenses.');
+      }
+    }
+  }
+
+  return findings;
+}
+
+// ── Score Calculation ──
+function calculateScore(findings) {
+  var score = 100;
+  findings.forEach(function(f) {
+    if (f.type === 'critical') score -= 25;
+    else if (f.type === 'warning') score -= 10;
+  });
+  return Math.max(0, score);
+}
+
+// ── Run Health Check ──
+function runHealthCheck() {
+  var raw = document.getElementById('trialBalancePaste').value.trim();
+  var errorEl = document.getElementById('pasteError');
+
+  if (!raw) {
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  errorEl.classList.add('hidden');
+
+  var accounts = parseTrialBalance(raw);
+
+  if (accounts.length === 0) {
+    errorEl.textContent = 'Could not parse any account data. Please make sure you copied the full Trial Balance from Excel or QBO. You can also try the "Try sample data" button to see an example.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
+  var findings = runChecks(accounts, selectedEntity);
+  var score = calculateScore(findings);
+
+  displayResults(score, findings, accounts.length);
+}
+
+// ── Display Results ──
+function displayResults(score, findings, accountCount) {
+  // Score display
+  var colorClass = score >= 80 ? 'green' : (score >= 50 ? 'yellow' : 'red');
+  var labels = {
+    green: 'Your books are in solid shape.',
+    yellow: 'Some things need attention before your next tax filing.',
+    red: 'Your books need a real cleanup conversation — soon.'
+  };
+
+  var scoreNumberEl = document.getElementById('scoreNumber');
+  var scoreLabelEl  = document.getElementById('scoreLabel');
+  var scoreSubEl    = document.getElementById('scoreSub');
+  var scoreBarEl    = document.getElementById('scoreBarFill');
+
+  scoreNumberEl.textContent = score;
+  scoreNumberEl.className = 'score-number ' + colorClass;
+
+  scoreLabelEl.textContent = labels[colorClass];
+  scoreLabelEl.className = 'score-label ' + colorClass;
+
+  scoreSubEl.textContent = 'Based on ' + accountCount + ' account' + (accountCount !== 1 ? 's' : '') + ' analyzed.';
+
+  scoreBarEl.className = 'score-bar-fill ' + colorClass;
+  scoreBarEl.style.width = '0%';
+
+  // Trigger animation
+  setTimeout(function() {
+    scoreBarEl.style.width = score + '%';
+  }, 50);
+
+  // Findings
+  var criticals = findings.filter(function(f) { return f.type === 'critical'; });
+  var warnings  = findings.filter(function(f) { return f.type === 'warning'; });
+  var passes    = findings.filter(function(f) { return f.type === 'pass'; });
+
+  var html = '';
+
+  if (criticals.length > 0) {
+    html += '<h3>Critical Issues (' + criticals.length + ')</h3>';
+    criticals.forEach(function(f) {
+      html += buildFindingCard(f);
+    });
+  }
+
+  if (warnings.length > 0) {
+    html += '<h3 style="margin-top:24px">Warnings (' + warnings.length + ')</h3>';
+    warnings.forEach(function(f) {
+      html += buildFindingCard(f);
+    });
+  }
+
+  if (passes.length > 0) {
+    html += '<h3 style="margin-top:24px">Checks Passed (' + passes.length + ')</h3>';
+    passes.forEach(function(f) {
+      html += buildFindingCard(f);
+    });
+  }
+
+  document.getElementById('findingsSection').innerHTML = html;
+
+  // Show results
+  document.getElementById('step-4').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildFindingCard(f) {
+  var icons = { critical: '🚨', warning: '⚠️', pass: '✅' };
+  var badgeLabels = { critical: 'Critical', warning: 'Warning', pass: 'All Clear' };
+
+  return '<div class="finding-card ' + f.type + '">' +
+    '<div class="finding-icon">' + icons[f.type] + '</div>' +
+    '<div class="finding-body">' +
+      '<div class="finding-header">' +
+        '<span class="finding-title">' + escapeHtml(f.title) + '</span>' +
+        '<span class="badge ' + f.type + '">' + badgeLabels[f.type] + '</span>' +
+      '</div>' +
+      '<p class="finding-desc">' + escapeHtml(f.desc) + '</p>' +
+    '</div>' +
+  '</div>';
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ── Start Over ──
+function startOver() {
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('trialBalancePaste').value = '';
+  document.getElementById('pasteError').classList.add('hidden');
+
+  // Reset entity selection
+  selectedEntity = 'not-sure';
+  var pills = document.querySelectorAll('.entity-pill');
+  pills.forEach(function(p) {
+    p.classList.remove('selected');
+    p.setAttribute('aria-checked', 'false');
+  });
+  var defaultPill = document.querySelector('[data-entity="not-sure"]');
+  if (defaultPill) {
+    defaultPill.classList.add('selected');
+    defaultPill.setAttribute('aria-checked', 'true');
+  }
+
+  // Rebuild video thumbnail (in case it was played)
+  var wrapper = document.getElementById('videoWrapper');
+  wrapper.innerHTML = '<img class="video-thumbnail" src="https://img.youtube.com/vi/RqBKkbPbVds/maxresdefault.jpg" alt="How to export Trial Balance from QuickBooks Online"><div class="play-btn" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg></div>';
+
+  goToStep(1);
+}
+</script>
+</body>
+</html>
