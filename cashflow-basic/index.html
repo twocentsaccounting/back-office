@@ -587,10 +587,10 @@
 
       <!-- CTA -->
       <div class="cta-card">
-        <p id="cta-text"></p>
+        <p>This calculator gives you a solid starting point — but your full cash flow picture goes deeper. If you need to factor in accounts payable and receivable, want to build a true cash runway, or are ready for a more detailed analysis of where your money is actually going, there's a more powerful version of this tool waiting for you inside the Back Office.</p>
         <div class="cta-btns">
-          <a class="cta-btn" href="https://calendar.app.google/xzXYkXaj3rERVZNt9" target="_blank" rel="noopener">Book a Free Consult</a>
-          <a class="cta-btn-outline" href="https://community.twocentsaccounting.com/checkout/ledger-lounge-back-office" target="_blank" rel="noopener">Join the Ledger Lounge</a>
+          <a class="cta-btn" href="https://community.twocentsaccounting.com/checkout/ledger-lounge-back-office" target="_blank" rel="noopener">Join the Ledger Lounge Back Office</a>
+          <a class="cta-btn-outline" href="https://calendar.app.google/xzXYkXaj3rERVZNt9" target="_blank" rel="noopener">Book a Free Consult</a>
         </div>
       </div>
 
@@ -613,8 +613,7 @@
         cssClass: 'tier-squeezed',
         min: -Infinity,
         max: 5,
-        message: "Your expenses are outpacing what's coming in, and that's a stressful place to be. You're not alone — and seeing it clearly is the first step toward changing it.",
-        ctaText: "A free consult is a good place to start. Let's look at the numbers together — no pressure, just clarity."
+        message: "Your expenses are outpacing what's coming in, and that's a stressful place to be. You're not alone — and seeing it clearly is the first step toward changing it."
       },
       {
         key: 'getting',
@@ -622,8 +621,7 @@
         cssClass: 'tier-getting',
         min: 5,
         max: 15,
-        message: "You're covering your costs and keeping a little breathing room. Things are moving in the right direction — now it's about building that cushion a bit more.",
-        ctaText: "Want support keeping things moving in the right direction? A free consult or the Ledger Lounge community are both great next steps."
+        message: "You're covering your costs and keeping a little breathing room. Things are moving in the right direction — now it's about building that cushion a bit more."
       },
       {
         key: 'breathing',
@@ -631,8 +629,7 @@
         cssClass: 'tier-breathing',
         min: 15,
         max: 25,
-        message: "You've got a real buffer here. Your business is covering expenses and leaving room for unexpected costs or future growth — that's worth acknowledging.",
-        ctaText: "You're in a great position to be more intentional with your finances. Connect with us or join a community of owners who think about this stuff."
+        message: "You've got a real buffer here. Your business is covering expenses and leaving room for unexpected costs or future growth — that's worth acknowledging."
       },
       {
         key: 'solid',
@@ -640,8 +637,7 @@
         cssClass: 'tier-solid',
         min: 25,
         max: Infinity,
-        message: "Your cash flow is genuinely healthy. You have the foundation to plan ahead, weather a slow month, and make intentional decisions about where to grow next.",
-        ctaText: "Strong numbers deserve strategic thinking. Book a consult or join the Ledger Lounge to keep the momentum going."
+        message: "Your cash flow is genuinely healthy. You have the foundation to plan ahead, weather a slow month, and make intentional decisions about where to grow next."
       }
     ];
 
@@ -707,9 +703,6 @@
       banner.className = 'tier-banner ' + tier.cssClass;
       document.getElementById('tier-label').textContent   = tier.label;
       document.getElementById('tier-message').textContent = tier.message;
-
-      // CTA
-      document.getElementById('cta-text').textContent = tier.ctaText;
 
       // Metrics
       document.getElementById('metric-room-dollar').textContent  = formatDollar(room);
