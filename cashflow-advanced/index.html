@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cash Flow Clarity Calculator — Two Cents Accounting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg:            #F5F0E8;
+      --bg-secondary:  #EDE7D9;
+      --bg-card:       #FFFFFF;
+      --bg-input:      #FFFFFF;
+      --text-primary:  #1C1A17;
+      --text-secondary:#5C5750;
+      --text-muted:    #9A9590;
+      --accent:        #E8622A;
+      --accent-hover:  #C94E1E;
+      --accent-light:  rgba(232,98,42,0.11);
+      --border:        rgba(28,26,23,0.12);
+      --shadow-sm:     0 1px 4px rgba(0,0,0,0.06);
+      --shadow:        0 2px 16px rgba(0,0,0,0.07);
+      --shadow-lg:     0 8px 40px rgba(0,0,0,0.13);
+      --green:         #276B2D;
+      --green-bg:      #EAF5EB;
+      --yellow:        #9A6D00;
+      --yellow-bg:     #FFF8E1;
+      --red:           #B0241F;
+      --red-bg:        #FDECEA;
+      --radius:        14px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #18150F;
+        --bg-secondary:  #221E16;
+        --bg-card:       #27231A;
+        --bg-input:      #302B21;
+        --text-primary:  #F0EAE0;
+        --text-secondary:#C0B9AF;
+        --text-muted:    #7A7268;
+        --accent:        #E8622A;
+        --accent-hover:  #F0743C;
+        --accent-light:  rgba(232,98,42,0.18);
+        --border:        rgba(255,255,255,0.09);
+        --shadow-sm:     0 1px 4px rgba(0,0,0,0.3);
+        --shadow:        0 2px 16px rgba(0,0,0,0.35);
+        --shadow-lg:     0 8px 40px rgba(0,0,0,0.5);
+        --green:         #6DBF73;
+        --green-bg:      rgba(109,191,115,0.13);
+        --yellow:        #F5C842;
+        --yellow-bg:     rgba(245,200,66,0.13);
+        --red:           #F06560;
+        --red-bg:        rgba(240,101,96,0.13);
+      }
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-wrap {
+      background: #F5F0E8;
+      border-radius: 10px;
+      padding: 8px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-wrap img {
+      height: 50px;
+      width: auto;
+      display: block;
+    }
+
+    /* ── Layout ── */
+    .main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 52px 24px 96px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5.5vw, 3.1rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 36px 40px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .card-subtitle {
+      font-size: 0.845rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ── Form Section Labels ── */
+    .form-section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      margin-top: 28px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-section-label:first-of-type {
+      margin-top: 0;
+    }
+
+    /* ── Form Grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.span-2 {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    /* ── Currency Inputs ── */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.15s;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 13px 11px 26px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    /* ── Tax Toggle ── */
+    .tax-wrap {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--bg-input);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .tax-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .tax-prefix {
+      padding: 11px 0 11px 13px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #taxInput {
+      flex: 1;
+      border: none;
+      border-radius: 0;
+      padding-left: 4px;
+      box-shadow: none !important;
+      background: transparent;
+    }
+
+    .tax-toggle {
+      display: flex;
+      border-left: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .tax-btn {
+      padding: 0 15px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .tax-btn + .tax-btn {
+      border-left: 1px solid var(--border);
+    }
+
+    .tax-btn.active {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    /* ── Tooltip ── */
+    .tip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 0.62rem;
+      font-weight: 700;
+      cursor: help;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 9px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: var(--bg);
+      font-size: 0.76rem;
+      font-weight: 400;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0;
+      text-transform: none;
+      padding: 9px 13px;
+      border-radius: 7px;
+      width: 230px;
+      line-height: 1.55;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s;
+      z-index: 200;
+      box-shadow: var(--shadow-lg);
+      white-space: normal;
+    }
+
+    .tip:hover::after,
+    .tip:focus::after {
+      opacity: 1;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ── Results section ── */
+    #results {
+      display: none;
+    }
+
+    #results.visible {
+      display: block;
+    }
+
+    /* ── Health Banner ── */
+    .health-banner {
+      border-radius: var(--radius);
+      padding: 26px 30px;
+      margin-bottom: 20px;
+      border: 1.5px solid transparent;
+    }
+
+    .health-banner.tier-squeezed   { background: var(--red-bg);    border-color: var(--red); }
+    .health-banner.tier-getting    { background: var(--yellow-bg);  border-color: var(--yellow); }
+    .health-banner.tier-breathing  { background: var(--accent-light); border-color: var(--accent); }
+    .health-banner.tier-solid      { background: var(--green-bg);   border-color: var(--green); }
+
+    .health-tier-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+      line-height: 1.2;
+    }
+
+    .tier-squeezed  .health-tier-name { color: var(--red); }
+    .tier-getting   .health-tier-name { color: var(--yellow); }
+    .tier-breathing .health-tier-name { color: var(--accent); }
+    .tier-solid     .health-tier-name { color: var(--green); }
+
+    .health-tier-msg {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      max-width: 640px;
+    }
+
+    /* ── Metrics Grid ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .metric-tile {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 18px 20px;
+    }
+
+    .metric-tile-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 9px;
+    }
+
+    .metric-tile-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .val-positive { color: var(--green); }
+    .val-warning  { color: var(--yellow); }
+    .val-negative { color: var(--red); }
+    .val-neutral  { color: var(--text-primary); }
+
+    .metric-tile-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ── Stacked Bar ── */
+    .stacked-bar {
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      overflow: hidden;
+      margin: 16px 0 12px;
+    }
+
+    .bar-seg {
+      transition: flex 0.55s cubic-bezier(.4,0,.2,1);
+      min-width: 0;
+    }
+
+    .stacked-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Individual Bars ── */
+    .breakdown-row {
+      margin-bottom: 15px;
+    }
+
+    .bar-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.825rem;
+      margin-bottom: 5px;
+    }
+
+    .bar-row-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bar-row-amount {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bar-row-pct {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 5px;
+    }
+
+    .bar-track {
+      height: 7px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.55s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Flag Banners ── */
+    .flag {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      padding: 13px 16px;
+      border-radius: 9px;
+      font-size: 0.855rem;
+      line-height: 1.55;
+      margin-top: 18px;
+    }
+
+    .flag.flag-warn { background: var(--yellow-bg); border: 1px solid var(--yellow); color: var(--text-primary); }
+    .flag.flag-ok   { background: var(--green-bg);  border: 1px solid var(--green);  color: var(--text-primary); }
+    .flag.flag-info { background: var(--accent-light); border: 1px solid var(--accent); color: var(--text-primary); }
+
+    .flag-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+
+    /* ── Tax Meter ── */
+    .tax-meter-bar {
+      position: relative;
+      height: 13px;
+      background: var(--bg-secondary);
+      border-radius: 7px;
+      overflow: hidden;
+      margin: 10px 0 5px;
+    }
+
+    .tax-meter-fill {
+      height: 100%;
+      border-radius: 7px;
+      transition: width 0.55s cubic-bezier(.4,0,.2,1), background-color 0.3s;
+    }
+
+    .tax-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .tax-headline {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+
+    .tax-big {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .tax-sub-label {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Profit First ── */
+    .pf-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pf-row:last-child { border-bottom: none; }
+
+    .pf-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .pf-middle {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pf-name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1px;
+    }
+
+    .pf-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .pf-bar-track {
+      height: 4px;
+      background: var(--bg-secondary);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .pf-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.55s cubic-bezier(.4,0,.2,1);
+    }
+
+    .pf-target-note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .pf-amounts {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .pf-actual {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+
+    .pf-pct {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ── CTA Card ── */
+    .cta-block {
+      background: var(--accent);
+      border-radius: var(--radius);
+      padding: 44px 40px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .cta-block h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .cta-block p {
+      font-size: 0.93rem;
+      color: rgba(255,255,255,0.88);
+      max-width: 480px;
+      margin: 0 auto 30px;
+      line-height: 1.65;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 26px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.845rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 9px;
+      letter-spacing: 0.025em;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.22);
+    }
+
+    .btn-white {
+      background: #FFFFFF;
+      color: var(--accent);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #FFFFFF;
+      border: 2px solid rgba(255,255,255,0.55);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: #FFFFFF;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.77rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    #results.visible > * {
+      animation: fadeUp 0.38s ease both;
+    }
+
+    #results.visible > *:nth-child(2) { animation-delay: 0.05s; }
+    #results.visible > *:nth-child(3) { animation-delay: 0.10s; }
+    #results.visible > *:nth-child(4) { animation-delay: 0.15s; }
+    #results.visible > *:nth-child(5) { animation-delay: 0.20s; }
+    #results.visible > *:nth-child(6) { animation-delay: 0.25s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .card { padding: 24px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.span-2 { grid-column: auto; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .cta-block { padding: 32px 22px; }
+      .cta-block h2 { font-size: 1.35rem; }
+
+      .tip::after {
+        left: 0;
+        transform: none;
+        width: 200px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .main { padding: 36px 16px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo-wrap">
+      <img src="./img_4951.png" alt="Two Cents Accounting" onerror="this.parentElement.style.display='none'">
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-eyebrow">Ledger Lounge · Free Tool</div>
+      <h1>Cash Flow <em>Clarity</em><br>Calculator</h1>
+      <p>See exactly where your money is going, how much cushion you have, and what your numbers are really telling you — no spreadsheets required.</p>
+    </section>
+
+    <!-- ── INPUT CARD ── -->
+    <div class="card">
+      <div class="card-title">Your Numbers</div>
+      <p class="card-subtitle">Use your best estimates. Exact isn't the goal here — clarity is. Results update as you type.</p>
+
+      <!-- Income -->
+      <div class="form-section-label">Income</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="revenue">Average Monthly Revenue</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="revenue" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="ar">Accounts Receivable
+            <span class="tip" tabindex="0" data-tip="Money currently owed to you — invoices sent but not yet paid. This isn't in your account yet, but it's yours.">?</span>
+          </label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="ar" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <!-- Expenses -->
+      <div class="form-section-label">Monthly Expenses</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="fixed">Fixed Expenses
+            <span class="tip" tabindex="0" data-tip="Costs that stay the same every month: rent or office space, software subscriptions, insurance, phone bill, recurring memberships.">?</span>
+          </label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="fixed" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="variable">Variable Expenses
+            <span class="tip" tabindex="0" data-tip="Costs that change month to month: supplies, contractors and freelancers, advertising, shipping, client gifts, event expenses.">?</span>
+          </label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="variable" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="ownerpay">Owner Pay / Draws</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="ownerpay" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="debt">Monthly Debt Payments
+            <span class="tip" tabindex="0" data-tip="Loan payments, line of credit payments, equipment financing — any debt you're repaying each month.">?</span>
+          </label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="debt" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group span-2">
+          <label for="taxInput">Amount Set Aside for Taxes Each Month</label>
+          <div class="tax-wrap">
+            <span class="tax-prefix" id="taxPrefix">$</span>
+            <input type="text" id="taxInput" placeholder="0" inputmode="decimal" autocomplete="off">
+            <div class="tax-toggle">
+              <button class="tax-btn active" id="btnDollar" onclick="setTaxMode('dollar')">$</button>
+              <button class="tax-btn" id="btnPercent" onclick="setTaxMode('percent')">%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seasonal -->
+      <div class="form-section-label">Seasonal Range</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="highmonth">Best Revenue Month (estimate)</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="highmonth" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="lowmonth">Slowest Revenue Month (estimate)</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="text" id="lowmonth" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div><!-- /input card -->
+
+    <!-- ── RESULTS ── -->
+    <div id="results">
+
+      <!-- Health Banner -->
+      <div class="health-banner" id="healthBanner">
+        <div class="health-tier-name" id="healthTierName"></div>
+        <div class="health-tier-msg" id="healthTierMsg"></div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="card">
+        <div class="card-title">Your Key Numbers</div>
+        <p class="card-subtitle">A snapshot of what your current revenue and expenses are telling you.</p>
+        <div class="metrics-grid">
+          <div class="metric-tile">
+            <div class="metric-tile-label">Monthly Breathing Room</div>
+            <div class="metric-tile-value" id="mBreathingDollar"></div>
+            <div class="metric-tile-sub" id="mBreathingPct"></div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-tile-label">Expense Ratio</div>
+            <div class="metric-tile-value" id="mExpenseRatio"></div>
+            <div class="metric-tile-sub">of revenue going to expenses</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-tile-label">Cash Flow Runway</div>
+            <div class="metric-tile-value" id="mRunway"></div>
+            <div class="metric-tile-sub" id="mRunwaySub"></div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-tile-label">Accounts Receivable</div>
+            <div class="metric-tile-value val-neutral" id="mAR"></div>
+            <div class="metric-tile-sub">pending income on the way</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Where Money Is Going -->
+      <div class="card">
+        <div class="card-title">Where Your Money Is Going</div>
+        <p class="card-subtitle">Every dollar of monthly revenue, accounted for.</p>
+
+        <div class="stacked-bar" id="stackedBar"></div>
+        <div class="stacked-legend" id="stackedLegend"></div>
+
+        <hr class="divider">
+
+        <div id="breakdownBars"></div>
+
+        <div id="seasonalFlagEl"></div>
+      </div>
+
+      <!-- Tax Readiness -->
+      <div class="card">
+        <div class="card-title">Tax Readiness</div>
+        <p class="card-subtitle">A healthy benchmark is setting aside about 25% of revenue for taxes. Here's where you stand.</p>
+
+        <div class="tax-headline">
+          <div class="tax-big" id="taxReadinessPct"></div>
+          <div class="tax-sub-label" id="taxReadinessSub"></div>
+        </div>
+        <div class="tax-meter-bar">
+          <div class="tax-meter-fill" id="taxMeterFill"></div>
+        </div>
+        <div class="tax-meter-labels">
+          <span>0%</span>
+          <span>50%</span>
+          <span>100%</span>
+          <span>150%+</span>
+        </div>
+
+        <div class="flag" id="taxFlag" style="margin-top: 14px;"></div>
+      </div>
+
+      <!-- Profit First -->
+      <div class="card">
+        <div class="card-title">Profit First Suggested Allocations</div>
+        <p class="card-subtitle" id="pfSubtitle"></p>
+        <div id="pfRows"></div>
+        <div class="flag flag-info" style="margin-top:18px;">
+          <div class="flag-icon">💡</div>
+          <div>These are starting-point targets from the Profit First framework. The goal isn't perfection on day one — it's building intentional habits around where your money goes. Your actual numbers are shown for comparison.</div>
+        </div>
+      </div>
+
+    </div><!-- /results -->
+
+    <!-- CTA (always visible after results) -->
+    <div class="cta-block" id="ctaBlock" style="display:none;">
+      <h2>Have questions about what your numbers are telling you?</h2>
+      <p>DM me and let's talk through it. Understanding your cash flow is the first step — knowing what to do next is where things get interesting.</p>
+      <div class="cta-buttons">
+        <a href="https://community.twocentsaccounting.com" class="btn btn-white" target="_blank" rel="noopener noreferrer">Message Janet in Circle</a>
+        <a href="https://calendar.app.google/xzXYkXaj3rERVZNt9" class="btn btn-outline" target="_blank" rel="noopener noreferrer">Book a Discovery Call</a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2025 Two Cents Accounting &nbsp;·&nbsp; Built for the Ledger Lounge community</p>
+  </footer>
+
+<script>
+  /* ─────────────────────────────────────────────
+     State & Helpers
+  ───────────────────────────────────────────── */
+  let taxMode = 'dollar';
+
+  function setTaxMode(mode) {
+    taxMode = mode;
+    document.getElementById('btnDollar').classList.toggle('active', mode === 'dollar');
+    document.getElementById('btnPercent').classList.toggle('active', mode === 'percent');
+    document.getElementById('taxPrefix').textContent = mode === 'dollar' ? '$' : '%';
+    document.getElementById('taxInput').value = '';
+    calculate();
+  }
+
+  function raw(id) {
+    const v = document.getElementById(id).value.replace(/[$,%\s]/g, '').replace(/,/g, '');
+    const n = parseFloat(v);
+    return isNaN(n) || n < 0 ? 0 : n;
+  }
+
+  function money(n) {
+    if (!isFinite(n)) return '$0';
+    const abs = Math.abs(n);
+    const s = abs >= 1000
+      ? abs.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+      : abs.toFixed(0);
+    return (n < 0 ? '−$' : '$') + s;
+  }
+
+  function pct(n, dec = 1) {
+    if (!isFinite(n)) return '0%';
+    return n.toFixed(dec) + '%';
+  }
+
+  function clamp(n, lo, hi) {
+    return Math.min(Math.max(n, lo), hi);
+  }
+
+  function formatCommas(el) {
+    const cursorPos = el.selectionStart;
+    const raw = el.value.replace(/[^0-9.]/g, '');
+    const parts = raw.split('.');
+    if (parts.length > 2) parts.splice(2);
+    let intPart = parts[0].replace(/^0+(?=\d)/, '') || '';
+    if (intPart) intPart = parseInt(intPart, 10).toLocaleString('en-US');
+    el.value = parts.length === 2 ? intPart + '.' + parts[1] : intPart;
+  }
+
+  /* Attach live formatting to all currency fields */
+  document.querySelectorAll('input[type="text"]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (inp.id !== 'taxInput' || taxMode === 'dollar') {
+        formatCommas(inp);
+      }
+      calculate();
+    });
+  });
+
+  /* ─────────────────────────────────────────────
+     Profit First revenue-tier targets
+  ───────────────────────────────────────────── */
+  function getPFTargets(annualRevenue) {
+    // CAPS allocations vary by TAR (target allocation revenue)
+    if (annualRevenue < 250000) {
+      return { profit: 5, ownerPay: 50, tax: 15, opex: 30 };
+    } else if (annualRevenue < 500000) {
+      return { profit: 10, ownerPay: 35, tax: 15, opex: 40 };
+    } else if (annualRevenue < 1000000) {
+      return { profit: 15, ownerPay: 20, tax: 15, opex: 50 };
+    } else {
+      return { profit: 20, ownerPay: 10, tax: 15, opex: 55 };
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     Main Calculation
+  ───────────────────────────────────────────── */
+  function calculate() {
+    const revenue    = raw('revenue');
+    const fixed      = raw('fixed');
+    const variable   = raw('variable');
+    const ownerPay   = raw('ownerpay');
+    const ar         = raw('ar');
+    const highMonth  = raw('highmonth');
+    const lowMonth   = raw('lowmonth');
+    const debt       = raw('debt');
+    const taxRaw     = raw('taxInput');
+
+    const taxSavings = taxMode === 'dollar' ? taxRaw : revenue * (taxRaw / 100);
+
+    /* Hide results if no revenue */
+    if (revenue <= 0) {
+      document.getElementById('results').classList.remove('visible');
+      document.getElementById('ctaBlock').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('ctaBlock').style.display = 'block';
+
+    /* ── Core calculations ── */
+    const totalExpenses   = fixed + variable + ownerPay + debt;
+    const breathingRoom   = revenue - totalExpenses;
+    const breathingPct    = (breathingRoom / revenue) * 100;
+    const expenseRatio    = (totalExpenses / revenue) * 100;
+    const runway          = totalExpenses > 0 ? breathingRoom / totalExpenses : 0;
+    const spread          = highMonth > 0 && lowMonth > 0 ? highMonth - lowMonth : 0;
+    const highSeasonality = spread > 0 && spread > revenue * 0.4;
+    const recommended25   = revenue * 0.25;
+    const taxReadiness    = recommended25 > 0 ? (taxSavings / recommended25) * 100 : 0;
+
+    /* ── Health tier ── */
+    let tierClass, tierName, tierMsg;
+    if (breathingPct < 5) {
+      tierClass = 'tier-squeezed';
+      tierName  = 'Squeezed';
+      tierMsg   = "Things are tight right now — and that's worth naming clearly, not avoiding. This is exactly when getting eyes on your numbers matters most. Small shifts in expenses or pricing often have a bigger impact than they look on paper.";
+    } else if (breathingPct < 15) {
+      tierClass = 'tier-getting';
+      tierName  = 'Getting There';
+      tierMsg   = "You're covering your bases, but the cushion is thin. A few thoughtful adjustments — trimming a variable expense here, revisiting your pricing there — could meaningfully open things up.";
+    } else if (breathingPct < 25) {
+      tierClass = 'tier-breathing';
+      tierName  = 'Breathing Room';
+      tierMsg   = "You've built real margin here, and that's something to feel good about. This is a solid place to start putting that breathing room to work — building your tax reserve, padding your runway, and planning ahead with intention.";
+    } else {
+      tierClass = 'tier-solid';
+      tierName  = 'Solid Ground';
+      tierMsg   = "Your business is generating healthy, meaningful margin. Now's the time to make sure that cash is working strategically — not just sitting comfortably — through a profit account, reserves, and a clear growth plan.";
+    }
+
+    const banner = document.getElementById('healthBanner');
+    banner.className = 'health-banner ' + tierClass;
+    document.getElementById('healthTierName').textContent = tierName;
+    document.getElementById('healthTierMsg').textContent  = tierMsg;
+
+    /* ── Key Metrics ── */
+    const brEl = document.getElementById('mBreathingDollar');
+    brEl.textContent = money(breathingRoom);
+    brEl.className = 'metric-tile-value ' + (breathingRoom >= 0 ? 'val-positive' : 'val-negative');
+    document.getElementById('mBreathingPct').textContent = pct(breathingPct) + ' of revenue';
+
+    const erEl = document.getElementById('mExpenseRatio');
+    erEl.textContent = pct(expenseRatio);
+    erEl.className = 'metric-tile-value ' + (expenseRatio < 75 ? 'val-positive' : expenseRatio < 90 ? 'val-warning' : 'val-negative');
+
+    const rwEl = document.getElementById('mRunway');
+    const rwSub = document.getElementById('mRunwaySub');
+    if (runway <= 0) {
+      rwEl.textContent = '—';
+      rwEl.className = 'metric-tile-value val-negative';
+      rwSub.textContent = 'expenses currently exceed revenue';
+    } else {
+      rwEl.textContent = runway.toFixed(1) + ' mo';
+      rwEl.className = 'metric-tile-value ' + (runway >= 2 ? 'val-positive' : runway >= 0.5 ? 'val-warning' : 'val-negative');
+      rwSub.textContent = 'approximately ' + runway.toFixed(1) + ' month' + (runway >= 2 ? 's' : '') + ' of cushion';
+    }
+
+    document.getElementById('mAR').textContent = money(ar);
+
+    /* ── Stacked Bar ── */
+    const segments = [
+      { label: 'Fixed Expenses',    val: fixed,                    color: '#E8622A' },
+      { label: 'Variable Expenses', val: variable,                 color: '#F0944A' },
+      { label: 'Owner Pay',         val: ownerPay,                 color: '#4A8FD4' },
+      { label: 'Debt Payments',     val: debt,                     color: '#9B59B6' },
+      { label: 'Breathing Room',    val: Math.max(0, breathingRoom), color: '#3BBB7A' },
+    ];
+
+    const barTotal = segments.reduce((s, c) => s + c.val, 0) || 1;
+    const stackedBar = document.getElementById('stackedBar');
+    const stackedLegend = document.getElementById('stackedLegend');
+    stackedBar.innerHTML = '';
+    stackedLegend.innerHTML = '';
+
+    segments.forEach(seg => {
+      if (seg.val <= 0) return;
+      const segPct = (seg.val / barTotal) * 100;
+
+      const div = document.createElement('div');
+      div.className = 'bar-seg';
+      div.style.cssText = `flex:${segPct}; background:${seg.color};`;
+      div.title = `${seg.label}: ${money(seg.val)} (${pct(segPct)})`;
+      stackedBar.appendChild(div);
+
+      const li = document.createElement('div');
+      li.className = 'legend-item';
+      li.innerHTML = `<span class="legend-dot" style="background:${seg.color}"></span>${seg.label}&nbsp;<strong>${pct(segPct)}</strong>`;
+      stackedLegend.appendChild(li);
+    });
+
+    /* ── Individual breakdown bars ── */
+    const breakdownBars = document.getElementById('breakdownBars');
+    breakdownBars.innerHTML = '';
+    segments.slice(0, 4).forEach(seg => {
+      const pctOfRev = (seg.val / revenue) * 100;
+      const row = document.createElement('div');
+      row.className = 'breakdown-row';
+      row.innerHTML = `
+        <div class="bar-row-header">
+          <span class="bar-row-name">${seg.label}</span>
+          <span>
+            <span class="bar-row-amount">${money(seg.val)}</span>
+            <span class="bar-row-pct">${pct(pctOfRev)} of revenue</span>
+          </span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${clamp(pctOfRev,0,100)}%; background:${seg.color};"></div>
+        </div>
+      `;
+      breakdownBars.appendChild(row);
+    });
+
+    /* ── Seasonal flag ── */
+    const seasonalEl = document.getElementById('seasonalFlagEl');
+    if (highMonth > 0 && lowMonth > 0) {
+      const spreadPct = (spread / revenue) * 100;
+      if (highSeasonality) {
+        seasonalEl.innerHTML = `
+          <div class="flag flag-warn">
+            <div class="flag-icon">⚠️</div>
+            <div>
+              <strong>Your seasonal swing is significant.</strong> There's roughly ${money(spread)} between your best and slowest months — about ${pct(spreadPct)} of your average revenue. Planning for that gap ahead of time keeps your slow months from becoming a cash crunch.
+            </div>
+          </div>`;
+      } else {
+        seasonalEl.innerHTML = `
+          <div class="flag flag-ok">
+            <div class="flag-icon">✓</div>
+            <div>Your seasonal spread looks manageable — about ${money(spread)} between your highest and lowest months (${pct(spreadPct)} of average). Keep an eye on it as your business grows.</div>
+          </div>`;
+      }
+    } else {
+      seasonalEl.innerHTML = '';
+    }
+
+    /* ── Tax Readiness ── */
+    document.getElementById('taxReadinessPct').textContent = pct(taxReadiness) + ' of recommended';
+    document.getElementById('taxReadinessSub').textContent =
+      money(taxSavings) + '/mo saved · benchmark: ' + money(recommended25) + '/mo';
+
+    const meterFill = document.getElementById('taxMeterFill');
+    const meterWidthPct = clamp((taxReadiness / 150) * 100, 0, 100);
+    meterFill.style.width = meterWidthPct + '%';
+
+    let taxColor, taxFlagClass, taxFlagMsg;
+    if (taxReadiness < 50) {
+      taxColor    = 'var(--red)';
+      taxFlagClass = 'flag flag-warn';
+      taxFlagMsg  = 'You\'re setting aside less than half the recommended tax amount. A surprise tax bill is one of the most disruptive cash flow events a small business can face — even small, consistent increases here can change that picture significantly.';
+    } else if (taxReadiness < 85) {
+      taxColor    = 'var(--yellow)';
+      taxFlagClass = 'flag flag-warn';
+      taxFlagMsg  = 'You\'re getting closer on taxes — nice work. If cash allows, bumping this up a bit would bring you to a place where tax season feels predictable instead of stressful.';
+    } else {
+      taxColor    = 'var(--green)';
+      taxFlagClass = 'flag flag-ok';
+      taxFlagMsg  = 'You\'re in solid shape on tax savings. Staying consistent here means fewer surprises, more options, and a much calmer April.';
+    }
+
+    meterFill.style.backgroundColor = taxColor;
+    const taxFlagEl = document.getElementById('taxFlag');
+    taxFlagEl.className = taxFlagClass;
+    taxFlagEl.innerHTML = `<div class="flag-icon">${taxReadiness >= 85 ? '✓' : '⚠️'}</div><div>${taxFlagMsg}</div>`;
+
+    /* ── Profit First ── */
+    const annualRev = revenue * 12;
+    const targets   = getPFTargets(annualRev);
+
+    const tierLabel = annualRev < 250000 ? 'Under $250k'
+      : annualRev < 500000 ? '$250k–$500k'
+      : annualRev < 1000000 ? '$500k–$1M'
+      : 'Over $1M';
+
+    document.getElementById('pfSubtitle').textContent =
+      `Based on your annualized revenue (${money(annualRev)}/yr, ${tierLabel} tier), here's how Profit First suggests you allocate each dollar — alongside what your numbers show today.`;
+
+    const pfDefs = [
+      {
+        name: 'Profit',
+        desc: 'A non-negotiable first take for business growth',
+        icon: '📈', iconBg: '#E8622A',
+        target: targets.profit,
+        actual: Math.max(0, breathingRoom),
+      },
+      {
+        name: 'Owner Pay',
+        desc: 'Your compensation for running the business',
+        icon: '👤', iconBg: '#4A8FD4',
+        target: targets.ownerPay,
+        actual: ownerPay,
+      },
+      {
+        name: 'Tax',
+        desc: 'Reserved so tax season is never a surprise',
+        icon: '🏛️', iconBg: '#9B59B6',
+        target: targets.tax,
+        actual: taxSavings,
+      },
+      {
+        name: 'Operating Expenses',
+        desc: 'What it costs to run the business day-to-day',
+        icon: '⚙️', iconBg: '#F0944A',
+        target: targets.opex,
+        actual: fixed + variable + debt,
+      },
+    ];
+
+    const pfContainer = document.getElementById('pfRows');
+    pfContainer.innerHTML = '';
+
+    pfDefs.forEach(row => {
+      const targetAmt = revenue * (row.target / 100);
+      const fillPct   = targetAmt > 0 ? clamp((row.actual / targetAmt) * 100, 0, 100) : 0;
+      const actualPct = (row.actual / revenue) * 100;
+      const onTrack   = row.actual >= targetAmt * 0.85;
+
+      const el = document.createElement('div');
+      el.className = 'pf-row';
+      el.innerHTML = `
+        <div class="pf-icon" style="background:${row.iconBg}22; color:${row.iconBg};">${row.icon}</div>
+        <div class="pf-middle">
+          <div class="pf-name">${row.name}</div>
+          <div class="pf-desc">${row.desc}</div>
+          <div class="pf-bar-track">
+            <div class="pf-bar-fill" style="width:${fillPct}%; background:${onTrack ? 'var(--green)' : row.iconBg};"></div>
+          </div>
+          <div class="pf-target-note">Target: ${money(targetAmt)} (${row.target}%)</div>
+        </div>
+        <div class="pf-amounts">
+          <div class="pf-actual">${money(row.actual)}</div>
+          <div class="pf-pct">${pct(actualPct)} actual</div>
+        </div>
+      `;
+      pfContainer.appendChild(el);
+    });
+  }
+
+  /* Run once on load */
+  calculate();
+</script>
+
+</body>
+</html>
